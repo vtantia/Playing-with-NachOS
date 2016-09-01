@@ -146,8 +146,6 @@ class Machine {
     void Debugger();		// invoke the user program debugger
     void DumpState();		// print the user CPU and memory state 
 
-    void setPrPID(int pid) {prpid = pid;}
-    int getPrPID() { return prpid; }
 
 
 // Data structures -- all of these are accessible to Nachos kernel code.
@@ -190,7 +188,6 @@ class Machine {
 				// simulated instruction
     int runUntilTime;		// drop back into the debugger when simulated
 				// time reaches this value
-    int prpid;
 };
 
 extern void ExceptionHandler(ExceptionType which);
