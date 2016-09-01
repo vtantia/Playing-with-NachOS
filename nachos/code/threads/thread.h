@@ -81,6 +81,7 @@ class NachOSThread {
     int machineState[MachineStateSize];  // all registers except for stackTop
 
   public:
+    static int prpid;
     NachOSThread(char* debugName);		// initialize a Thread 
     ~NachOSThread(); 				// deallocate a Thread
 					// NOTE -- thread being deleted
@@ -99,7 +100,7 @@ class NachOSThread {
     void CheckOverflow();   			// Check if thread has 
 						// overflowed its stack
     void setStatus(ThreadStatus st) { status = st; }
-    void setPID(int prpid) { this->pid = prpid + 1; prpid = pid;}
+    void setPID() { this->pid = prpid + 1; prpid = pid;}
     int getPID() { return pid; }
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
@@ -117,7 +118,7 @@ class NachOSThread {
     					// Allocate a stack for thread.
 					// Used internally by ThreadFork()
 
-    int pid, ppid, prpid;			// My pid and my parent's pid
+    int pid, ppid;			// My pid and my parent's pid
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 

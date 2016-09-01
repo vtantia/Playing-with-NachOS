@@ -75,6 +75,7 @@ TimerInterruptHandler(int dummy)
 //	"argv" is an array of strings, one for each command line argument
 //		ex: "nachos -d +" -> argv = {"nachos", "-d", "+"}
 //----------------------------------------------------------------------
+int NachOSThread::prpid = -1;
 void
 Initialize(int argc, char **argv)
 {
@@ -144,9 +145,10 @@ Initialize(int argc, char **argv)
     // We didn't explicitly allocate the current thread we are running in.
     // But if it ever tries to give up the CPU, we better have a Thread
     // object to save its state. 
+    //NachOSThread::initializePrPID();
     currentThread = new NachOSThread("main");		
     currentThread->setStatus(RUNNING);
-    currentThread->setPID(1);
+    currentThread->setPID();
 
     interrupt->Enable();
     CallOnUserAbort(Cleanup);			// if user hits ctl-C
