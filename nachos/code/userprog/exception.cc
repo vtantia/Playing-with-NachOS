@@ -70,6 +70,23 @@ static void ConvertIntToHex (unsigned v, Console *console)
    }
 }
 
+int GetPhysAddr(int virtAddr) {
+    unsigned int vpn, offset;
+    unsigned int pageFrame;
+
+    vpn = (unsigned) virtAddr / PageSize;
+    offset = (unsigned) virtAddr % PageSize;
+
+    if (vpn >= machine->pageTableSize) { return -1;} 
+    else if (!machine->NachOSpageTable[vpn].valid) { return -1;}
+    TranslationEntry* entry = &(machine->NachOSpageTable[vpn]);
+    pageFrame = entry->physicalPage;
+    if (pageFrame >= NumPhysPages) { return -1;}
+
+    int physAddr = pageFrame * PageSize + offset;
+    return physAddr;
+}
+
 void
 ExceptionHandler(ExceptionType which)
 {
@@ -168,6 +185,14 @@ ExceptionHandler(ExceptionType which)
        int reg = machine->ReadRegister(4);
        int val = machine->ReadRegister(reg);
        machine->WriteRegister(2, val);
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    } else if ((which == SyscallException) && (type == SYScall_GetPA)) {
+       int virtAddr = machine->ReadRegister(4);
+       int physAddr = GetPhysAddr(virtAddr);
+       machine->WriteRegister(2, physAddr);
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
