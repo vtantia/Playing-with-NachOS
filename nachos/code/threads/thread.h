@@ -101,7 +101,9 @@ class NachOSThread {
 						// overflowed its stack
     void setStatus(ThreadStatus st) { status = st; }
     void setPID() { this->pid = prpid + 1; prpid = pid;}
+    void setPPID(int ppid) { this->ppid = ppid; }
     int getPID() { return pid; }
+    int getPPID() { return ppid; }
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
 

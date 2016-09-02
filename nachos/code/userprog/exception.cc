@@ -175,13 +175,22 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
 
-    } else if ((which == SyscallException) && (type == SYScall_GetPID)) {
+    } 
+    else if ((which == SyscallException) && (type == SYScall_GetPID)) {
        machine->WriteRegister(2, currentThread->getPID());
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
-    } else if ((which == SyscallException) && (type == SYScall_GetReg)) {
+    } 
+    else if ((which == SyscallException) && (type == SYScall_GetPPID)) {
+       machine->WriteRegister(2, currentThread->getPPID());
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    } 
+    else if ((which == SyscallException) && (type == SYScall_GetReg)) {
        int reg = machine->ReadRegister(4);
        int val = machine->ReadRegister(reg);
        machine->WriteRegister(2, val);
@@ -189,7 +198,8 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
-    } else if ((which == SyscallException) && (type == SYScall_GetPA)) {
+    } 
+    else if ((which == SyscallException) && (type == SYScall_GetPA)) {
        int virtAddr = machine->ReadRegister(4);
        int physAddr = GetPhysAddr(virtAddr);
        machine->WriteRegister(2, physAddr);
@@ -197,7 +207,16 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
-    } else {
+    } 
+    else if ((which == SyscallException) && (type == SYScall_Time)) {
+       int ticks = stats->totalTicks;
+       machine->WriteRegister(2, ticks);
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    } 
+    else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);
     }
