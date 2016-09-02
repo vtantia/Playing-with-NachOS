@@ -5,3 +5,5 @@ GetPID - In order to assign pid, we create a static variable prpid which is a me
 GetPA - In exception.cc, we read virtual memory address from register 4, translate it to physical address using our getPhysAddr function, put it in register 2, and change program counters. We have implemented getPhysAddr in exception.cc, modelling it on the Translate function in machine/translate.cc. 
 
 GetTime - In exception.cc, we read ticks from TotalTicks variable of stats object and put it in register 2. Increase program counters.
+
+Sleep - We create a new SleepThreadList in scheduler. When syscall sleep is called, it gets the time to sleep from register 4 and calls function threadIsReadyToSleep. This function does a sortedInsert on SleepThreadList. For timer interrupt handler, it keeps removing threads, whose time to wake up has been crossed by looking at that field in SleepThreadList, and calls ThreadIsReadyToRun for it.

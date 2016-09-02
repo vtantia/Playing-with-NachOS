@@ -63,6 +63,19 @@ TimerInterruptHandler(int dummy)
 {
     if (interrupt->getStatus() != IdleMode)
 	interrupt->YieldOnReturn();
+    int* timeToWakePtr = new int;
+    NachOSThread *nextThread;
+    while (nextThread = (NachOSThread *)scheduler->RemoveFromSleep(timeToWakePtr)) {
+        if (*timeToWakePtr > stats->totalTicks) {
+            IntStatus oldLevel = interrupt->SetLevel(IntOff);
+            scheduler->ThreadIsReadyToSleep(nextThread, *timeToWakePtr);
+            interrupt->SetLevel(oldLevel);
+            break;
+        }
+        IntStatus oldLevel = interrupt->SetLevel(IntOff);
+        scheduler->ThreadIsReadyToRun(nextThread);
+        interrupt->SetLevel(oldLevel);
+    }
 }
 
 //----------------------------------------------------------------------
