@@ -221,15 +221,23 @@ ExceptionHandler(ExceptionType which)
        int ticksToSleep = machine->ReadRegister(4);
        int ticksToWake = ticks + ticksToSleep;
 
-       IntStatus oldLevel = interrupt->SetLevel(IntOff);
-       currentThread->PutThreadToSleep();
-       scheduler->ThreadIsReadyToSleep(currentThread, ticksToWake);
-       interrupt->SetLevel(oldLevel);
-
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+
+       IntStatus oldLevel = interrupt->SetLevel(IntOff);
+       currentThread->PutThreadToSleep();
+       scheduler->ThreadIsReadyToSleep(currentThread, ticksToWake);
+       interrupt->SetLevel(oldLevel);
+    } 
+    else if ((which == SyscallException) && (type == SYScall_Yield)) {
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+
+       currentThread->YieldCPU();
     } 
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
