@@ -38,6 +38,7 @@ NachOSThread::NachOSThread(char* threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    setPID();
 #ifdef USER_PROGRAM
     space = NULL;
 #endif

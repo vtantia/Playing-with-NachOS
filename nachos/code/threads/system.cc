@@ -161,7 +161,6 @@ Initialize(int argc, char **argv)
     //NachOSThread::initializePrPID();
     currentThread = new NachOSThread("main");		
     currentThread->setStatus(RUNNING);
-    currentThread->setPID();
 
     interrupt->Enable();
     CallOnUserAbort(Cleanup);			// if user hits ctl-C
