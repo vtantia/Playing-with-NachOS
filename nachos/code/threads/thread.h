@@ -106,6 +106,8 @@ class NachOSThread {
     int getPPID() { return ppid; }
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
+    int getNumInstr() { return numInstr; }
+    void incNumInstr() { numInstr++; }
 
   private:
     // some of the private data for this class is listed above
@@ -121,6 +123,7 @@ class NachOSThread {
 					// Used internally by ThreadFork()
 
     int pid, ppid;			// My pid and my parent's pid
+    int numInstr;
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 

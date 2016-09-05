@@ -7,3 +7,6 @@ GetPA - In exception.cc, we read virtual memory address from register 4, transla
 GetTime - In exception.cc, we read ticks from TotalTicks variable of stats object and put it in register 2. Increase program counters.
 
 Sleep - We create a new SleepThreadList in scheduler. When syscall sleep is called, it gets the time to sleep from register 4 and calls function threadIsReadyToSleep. This function does a sortedInsert on SleepThreadList. For timer interrupt handler, it keeps removing threads, whose time to wake up has been crossed by looking at that field in SleepThreadList, and calls ThreadIsReadyToRun for it.
+
+NumInstr - We create a numInstr private variable in Thread class and get and increase methods for it. In OneInstruction, increase the thread's numInstr.
+Put numInstr in register 2 in exception.cc.
