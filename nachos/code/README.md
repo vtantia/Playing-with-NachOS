@@ -10,3 +10,7 @@ Sleep - We create a new SleepThreadList in scheduler. When syscall sleep is call
 
 NumInstr - We create a numInstr private variable in Thread class and get and increase methods for it. In OneInstruction, increase the thread's numInstr.
 Put numInstr in register 2 in exception.cc.
+
+Exec - We create a char array, read variable name from register 4 one character at a time and then, startUserProcess(executable) in exception.cc.
+
+Exit - If both ready and sleep lists are empty, we change threadToBeDestroyed to currentThread and currentThread to NULL, delte threadToBeDestroyed and Cleanup() machine.

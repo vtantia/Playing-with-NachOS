@@ -53,6 +53,7 @@ static Semaphore *readAvail;
 static Semaphore *writeDone;
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
+extern void StartUserProcess(char *filename);
 
 static void ConvertIntToHex (unsigned v, Console *console)
 {
@@ -104,6 +105,7 @@ ExceptionHandler(ExceptionType which)
 	DEBUG('a', "Shutdown, initiated by user program.\n");
    	interrupt->Halt();
     }
+
     else if ((which == SyscallException) && (type == SYScall_PrintInt)) {
        printval = machine->ReadRegister(4);
        if (printval == 0) {
@@ -245,6 +247,30 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    } 
+    else if ((which == SyscallException) && (type == SYScall_Exec)) {
+        char memval2[100];
+        int cnt = 0;
+        vaddr = machine->ReadRegister(4);
+       machine->ReadMem(vaddr, 1, &memval);
+       while ((*(char*)&memval) != '\0') {
+          memval2[cnt++] = (*(char*)&memval);
+          vaddr++;
+          machine->ReadMem(vaddr, 1, &memval);
+       }
+       memval2[cnt] = '\0';
+        StartUserProcess((char *)memval2);
+    } 
+    else if ((which == SyscallException) && (type == SYScall_Exit)) {
+        if (scheduler->ListsEmpty()) {
+            IntStatus oldLevel = interrupt->SetLevel(IntOff);
+            threadToBeDestroyed = currentThread;
+            currentThread = NULL;
+            delete threadToBeDestroyed;
+            Cleanup();
+            interrupt->SetLevel(oldLevel);
+        }
+        currentThread->FinishThread();
     } 
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
