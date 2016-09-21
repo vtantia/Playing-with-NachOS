@@ -88,6 +88,27 @@ int GetPhysAddr(int virtAddr) {
     return physAddr;
 }
 
+void func(int arg) {
+    DEBUG('t', "Now in thread \"%s\"\n", currentThread->getName());
+
+    // If the old thread gave up the processor because it was finishing,
+    // we need to delete its carcass.  Note we cannot delete the thread
+    // before now (for example, in NachOSThread::FinishThread()), because up to this
+    // point, we were still running on the old thread's stack!
+    if (threadToBeDestroyed != NULL) {
+        delete threadToBeDestroyed;
+	threadToBeDestroyed = NULL;
+    }
+    
+#ifdef USER_PROGRAM
+    if (currentThread->space != NULL) {		// if there is an address space
+        currentThread->RestoreUserState();     // to restore, do it.
+	currentThread->space->RestoreStateOnSwitch();
+    }
+#endif
+    machine->Run();
+}
+
 void
 ExceptionHandler(ExceptionType which)
 {
@@ -271,6 +292,32 @@ ExceptionHandler(ExceptionType which)
             interrupt->SetLevel(oldLevel);
         }
         currentThread->FinishThread();
+    } 
+    else if ((which == SyscallException) && (type == SYScall_Fork)) {
+       NachOSThread *newThread = new NachOSThread(currentThread->getName());
+       newThread->setPPID(currentThread->getPID());
+
+       machine->WriteRegister(2, 0);//newThread->getPID());
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+
+       ProcessAddrSpace *space;
+       space = new ProcessAddrSpace();    
+       newThread->space = space;
+       newThread->space->copy();
+       
+       newThread->SaveUserState();
+
+       newThread->ThreadFork(func, 0);
+       //newThread->stack = (int *) AllocBoundedArray(StackSize * sizeof(int));
+       //newThread->stackTop = currentThread->stackTop;
+       //for (int i=0; i<StackSize; i++) {
+           //newThread->stack[i] = currentThread->stack[i];
+       //}
+
+       machine->WriteRegister(2, newThread->getPID());
     } 
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);

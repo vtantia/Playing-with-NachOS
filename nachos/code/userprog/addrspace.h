@@ -23,6 +23,8 @@ class ProcessAddrSpace {
     ProcessAddrSpace(OpenFile *executable);	// Create an address space,
 					// initializing it with the program
 					// stored in the file "executable"
+    ProcessAddrSpace();
+    void copy();
     ~ProcessAddrSpace();			// De-allocate an address space
 
     void InitUserCPURegisters();		// Initialize user-level CPU registers,
@@ -30,6 +32,8 @@ class ProcessAddrSpace {
 
     void SaveStateOnSwitch();			// Save/restore address space-specific
     void RestoreStateOnSwitch();		// info on a context switch 
+    unsigned int getNumPages() { return numPagesInVM; }
+    TranslationEntry *getNachOSpageTable() { return NachOSpageTable; }
 
   private:
     TranslationEntry *NachOSpageTable;	// Assume linear page table translation

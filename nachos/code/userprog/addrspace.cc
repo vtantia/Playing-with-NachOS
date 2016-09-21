@@ -86,7 +86,13 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     NachOSpageTable = new TranslationEntry[numPagesInVM];
     for (i = 0; i < numPagesInVM; i++) {
 	NachOSpageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-	NachOSpageTable[i].physicalPage = i;
+        //while (machine->validPage[machine->physPageNumber])
+        machine->physPageNumber++;
+        //machine->validPage[machine->physPageNumber] = true;
+        //NachOSpageTable[i].physicalPage = machine->physPageNumber;
+        NachOSpageTable[i].physicalPage = i;
+        //bzero(machine->mainMemory+machine->physPageNumber*PageSize,PageSize);
+        printf("Virtual page %d physical page %d\n",NachOSpageTable[i].virtualPage, NachOSpageTable[i].physicalPage);
 	NachOSpageTable[i].valid = TRUE;
 	NachOSpageTable[i].use = FALSE;
 	NachOSpageTable[i].dirty = FALSE;
@@ -97,7 +103,7 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size);
+    bzero(machine->mainMemory, size+PageSize);
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
@@ -113,8 +119,41 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
 
+    printf("End \n");
 }
 
+void ProcessAddrSpace::copy()
+{
+    unsigned int i;
+    numPagesInVM = currentThread->space->getNumPages();
+    TranslationEntry *currentNachOSpageTable = currentThread->space->getNachOSpageTable();
+
+// first, set up the translation 
+    for (i = 0; i < numPagesInVM; i++) {
+	NachOSpageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+        while (machine->validPage[machine->physPageNumber])
+            machine->physPageNumber++;
+        machine->validPage[machine->physPageNumber] = true;
+        NachOSpageTable[i].physicalPage = machine->physPageNumber;
+        printf("Virtual page %d physical page %d\n",NachOSpageTable[i].virtualPage, NachOSpageTable[i].physicalPage);
+	NachOSpageTable[i].valid = currentNachOSpageTable[i].valid;
+	NachOSpageTable[i].use = currentNachOSpageTable[i].use;
+	NachOSpageTable[i].dirty = currentNachOSpageTable[i].dirty;
+	NachOSpageTable[i].readOnly = currentNachOSpageTable[i].readOnly;  // if the code segment was entirely on 
+					// a separate page, we could set its 
+					// pages to be read-only
+        for (int j=0; j<PageSize; j++) {
+            machine->mainMemory[NachOSpageTable[i].physicalPage*PageSize+j] = machine->mainMemory[currentNachOSpageTable[i].physicalPage*PageSize+j];
+        }
+    }
+
+    printf("End \n");
+}
+
+ProcessAddrSpace::ProcessAddrSpace()
+{
+    NachOSpageTable = new TranslationEntry[numPagesInVM];
+}
 //----------------------------------------------------------------------
 // ProcessAddrSpace::~ProcessAddrSpace
 // 	Dealloate an address space.  Nothing for now!
@@ -122,6 +161,11 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
 
 ProcessAddrSpace::~ProcessAddrSpace()
 {
+    int i;
+    //for (i = 0; i < numPagesInVM; i++) {
+        //if (NachOSpageTable[i].valid)
+            //machine->validPage[NachOSpageTable[i].physicalPage] = false;
+    //}
    delete NachOSpageTable;
 }
 
@@ -144,11 +188,11 @@ ProcessAddrSpace::InitUserCPURegisters()
 	machine->WriteRegister(i, 0);
 
     // Initial program counter -- must be location of "Start"
-    machine->WriteRegister(PCReg, 0);	
+    machine->WriteRegister(PCReg, NachOSpageTable[0].physicalPage*PageSize);	
 
     // Need to also tell MIPS where next instruction is, because
     // of branch delay possibility
-    machine->WriteRegister(NextPCReg, 4);
+    machine->WriteRegister(NextPCReg, NachOSpageTable[0].physicalPage*PageSize+4);
 
    // Set the stack register to the end of the address space, where we
    // allocated the stack; but subtract off a bit, to make sure we don't
