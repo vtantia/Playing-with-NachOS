@@ -77,10 +77,10 @@ class NachOSThread {
   private:
     // NOTE: DO NOT CHANGE the order of these first two members.
     // THEY MUST be in this position for SWITCH to work.
-    int* stackTop;			 // the current stack pointer
     int machineState[MachineStateSize];  // all registers except for stackTop
 
   public:
+    int* stackTop;			 // the current stack pointer
     static int prpid;
     NachOSThread(char* debugName);		// initialize a Thread 
     ~NachOSThread(); 				// deallocate a Thread
@@ -108,11 +108,15 @@ class NachOSThread {
     void Print() { printf("%s, ", name); }
     int getNumInstr() { return numInstr; }
     void incNumInstr() { numInstr++; }
+    void copy();
+    int* getStackTop() { return stackTop; }
+    int getStack(int pos) { return stack[pos]; }
+    int getMachineState(int pos) { return machineState[pos]; }
+    int* stack; 	 		// Bottom of the stack 
 
   private:
     // some of the private data for this class is listed above
     
-    int* stack; 	 		// Bottom of the stack 
 					// NULL if this is the main thread
 					// (If NULL, don't deallocate stack)
     ThreadStatus status;		// ready, running or blocked

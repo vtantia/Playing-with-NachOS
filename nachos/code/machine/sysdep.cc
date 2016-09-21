@@ -467,11 +467,21 @@ Random()
 char * 
 AllocBoundedArray(int size)
 {
+    printf("1 pgSize:size: %d\n", size);
+    fflush(stdout);
     int pgSize = getpagesize();
+    printf("2 pgSize: %d size: %d\n", pgSize, size);
+    fflush(stdout);
     char *ptr = new char[pgSize * 2 + size];
 
+    printf("3 pgSize: %d size: %d\n", pgSize, size);
+    fflush(stdout);
     mprotect(ptr, pgSize, 0);
+    printf("4 pgSize: %d size: %d\n", pgSize, size);
+    fflush(stdout);
     mprotect(ptr + pgSize + size, pgSize, 0);
+    printf("5 pgSize: %d size: %d\n", pgSize, size);
+    fflush(stdout);
     return ptr + pgSize;
 }
 

@@ -285,6 +285,17 @@ NachOSThread::AllocateThreadStack (VoidFunctionPtr func, int arg)
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }
 
+//void NachOSThread::copy() {
+    //stackTop = currentThread->getStackTop();
+    //int i;
+   //for (i=0; i<StackSize; i++) {
+       //stack[i] = currentThread->getStack(i);
+   //}
+   //for (i=0; i<MachineStateSize; i++) {
+       //machineState[i] = currentThread->getMachineState(i);
+   //}
+//}
+
 #ifdef USER_PROGRAM
 #include "machine.h"
 

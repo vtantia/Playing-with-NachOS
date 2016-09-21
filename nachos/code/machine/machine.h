@@ -32,7 +32,7 @@
 					// the disk sector size, for
 					// simplicity
 
-#define NumPhysPages    32
+#define NumPhysPages    64
 #define MemorySize 	(NumPhysPages * PageSize)
 #define TLBSize		4		// if there is a TLB, make it small
 
@@ -182,6 +182,8 @@ class Machine {
 
     TranslationEntry *NachOSpageTable;
     unsigned int pageTableSize;
+    bool validPage[NumPhysPages];
+    int physPageNumber;
 
   private:
     bool singleStep;		// drop back into the debugger after each

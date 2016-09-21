@@ -101,8 +101,10 @@ Machine::OneInstruction(Instruction *instr)
     currentThread->incNumInstr();
 
     // Fetch instruction 
+    //printf("Fetch instruction start\n");
     if (!machine->ReadMem(registers[PCReg], 4, &raw))
 	return;			// exception occurred
+    //printf("Fetch instruction returned\n");
     instr->value = raw;
     instr->Decode();
 

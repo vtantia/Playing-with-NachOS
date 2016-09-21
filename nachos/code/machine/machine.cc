@@ -69,6 +69,9 @@ Machine::Machine(bool debug)
 #else	// use linear page table
     tlb = NULL;
     NachOSpageTable = NULL;
+    for(i = 0; i < NumPhysPages; i++)
+        validPage[i] = false;
+    physPageNumber = 0;
 #endif
 
     singleStep = debug;
