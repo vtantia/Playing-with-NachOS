@@ -294,7 +294,7 @@ ExceptionHandler(ExceptionType which)
         currentThread->FinishThread();
     } 
     else if ((which == SyscallException) && (type == SYScall_Fork)) {
-       NachOSThread *newThread = new NachOSThread(currentThread->getName());
+       NachOSThread *newThread = new NachOSThread("child");
        newThread->setPPID(currentThread->getPID());
 
        machine->WriteRegister(2, 0);//newThread->getPID());
@@ -306,7 +306,7 @@ ExceptionHandler(ExceptionType which)
        ProcessAddrSpace *space;
        space = new ProcessAddrSpace();    
        newThread->space = space;
-       newThread->space->copy();
+       //newThread->space->copy();
        
        newThread->SaveUserState();
 
