@@ -103,7 +103,7 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size+PageSize);
+    bzero(machine->mainMemory, size);
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
@@ -161,7 +161,7 @@ ProcessAddrSpace::ProcessAddrSpace()
 
 ProcessAddrSpace::~ProcessAddrSpace()
 {
-    int i;
+    //int i;
     //for (i = 0; i < numPagesInVM; i++) {
         //if (NachOSpageTable[i].valid)
             //machine->validPage[NachOSpageTable[i].physicalPage] = false;
@@ -188,11 +188,11 @@ ProcessAddrSpace::InitUserCPURegisters()
 	machine->WriteRegister(i, 0);
 
     // Initial program counter -- must be location of "Start"
-    machine->WriteRegister(PCReg, NachOSpageTable[0].physicalPage*PageSize);	
+    machine->WriteRegister(PCReg, 0 );	
 
     // Need to also tell MIPS where next instruction is, because
     // of branch delay possibility
-    machine->WriteRegister(NextPCReg, NachOSpageTable[0].physicalPage*PageSize+4);
+    machine->WriteRegister(NextPCReg, 4);
 
    // Set the stack register to the end of the address space, where we
    // allocated the stack; but subtract off a bit, to make sure we don't
