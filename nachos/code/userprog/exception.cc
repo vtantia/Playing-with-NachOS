@@ -283,6 +283,16 @@ ExceptionHandler(ExceptionType which)
         StartUserProcess((char *)memval2);
     } 
     else if ((which == SyscallException) && (type == SYScall_Exit)) {
+        int exitCode = machine->ReadRegister(4);
+        machine->killStatus[currentThread->getPID()] = exitCode;
+
+        if (machine->calledJoin[currentThread->getPPID()] == true) {
+            IntStatus oldLevel = interrupt->SetLevel(IntOff);
+            scheduler->ThreadIsReadyToRun(currentThread->getParentPointer());
+            interrupt->SetLevel(oldLevel);
+            machine->calledJoin[currentThread->getPPID()] = false;
+        }
+
         if (scheduler->ListsEmpty()) {
             IntStatus oldLevel = interrupt->SetLevel(IntOff);
             threadToBeDestroyed = currentThread;
@@ -296,6 +306,8 @@ ExceptionHandler(ExceptionType which)
     else if ((which == SyscallException) && (type == SYScall_Fork)) {
        NachOSThread *newThread = new NachOSThread("child");
        newThread->setPPID(currentThread->getPID());
+       newThread->setParentPointer(currentThread);
+       machine->parentPID[newThread->getPID()] = newThread->getPPID();
 
        machine->WriteRegister(2, 0);//newThread->getPID());
         //Advance program counters.
@@ -306,19 +318,32 @@ ExceptionHandler(ExceptionType which)
        ProcessAddrSpace *newSpace;
        newSpace = new ProcessAddrSpace();    
        newThread->space = newSpace;
-       //newThread->space->copy();
        
        newThread->SaveUserState();
 
        newThread->ThreadFork(func, 0);
-       //newThread->stack = (int *) AllocBoundedArray(StackSize * sizeof(int));
-       //newThread->stackTop = currentThread->stackTop;
-       //for (int i=0; i<StackSize; i++) {
-           //newThread->stack[i] = currentThread->stack[i];
-       //}
 
        machine->WriteRegister(2, newThread->getPID());
     } 
+    else if ((which == SyscallException) && (type == SYScall_Join)) {
+       int childPID = machine->ReadRegister(4);
+       int exitCode;
+       if (machine->parentPID[childPID] != currentThread->getPID()) {
+           machine->WriteRegister(2, -1);
+       }
+       else if ((exitCode = machine->killStatus[childPID]) != -1500) {
+           machine->WriteRegister(2, exitCode);
+       }
+       else {
+           machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+           machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+           machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+           machine->calledJoin[currentThread->getPID()] = true;
+           IntStatus oldLevel = interrupt->SetLevel(IntOff);
+           currentThread->PutThreadToSleep();
+           interrupt->SetLevel(oldLevel);
+       }
+    }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);

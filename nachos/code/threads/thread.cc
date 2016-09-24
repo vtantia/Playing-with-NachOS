@@ -38,6 +38,7 @@ NachOSThread::NachOSThread(char* threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    parentPointer = NULL;
     setPID();
     numInstr = 0;
 #ifdef USER_PROGRAM
@@ -281,7 +282,7 @@ NachOSThread::AllocateThreadStack (VoidFunctionPtr func, int arg)
     machineState[PCState] = (int) _ThreadRoot;
     machineState[StartupPCState] = (int) InterruptEnable;
     machineState[InitialPCState] = (int) func;
-    printf("function : %d   ", (int)func);
+    //printf("function : %d   ", (int)func);
     machineState[InitialArgState] = arg;
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }

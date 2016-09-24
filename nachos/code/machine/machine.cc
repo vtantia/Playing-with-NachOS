@@ -58,6 +58,11 @@ Machine::Machine(bool debug)
 
     for (i = 0; i < NumTotalRegs; i++)
         registers[i] = 0;
+    for (i = 0; i < MaxNumThreads; i++) {
+        killStatus[i] = -1500;
+        parentPID[i] = -1;
+        calledJoin[i] = false;
+    }
     mainMemory = new char[MemorySize];
     for (i = 0; i < MemorySize; i++)
       	mainMemory[i] = 0;

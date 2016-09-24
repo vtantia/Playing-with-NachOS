@@ -115,8 +115,6 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
         executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
-
-    printf("End \n");
 }
 
 ProcessAddrSpace::ProcessAddrSpace()

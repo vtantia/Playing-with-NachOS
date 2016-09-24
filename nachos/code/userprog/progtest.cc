@@ -31,14 +31,12 @@ StartUserProcess(char *filename)
 	return;
     }
     space = new ProcessAddrSpace(executable);    
-    printf("After addr space 1\n");
     currentThread->space = space;
 
     delete executable;			// close file
 
     space->InitUserCPURegisters();		// set the initial register values
     space->RestoreStateOnSwitch();		// load page table register
-    printf("After addr space 2\n");
 
     machine->Run();			// jump to the user progam
     ASSERT(FALSE);			// machine->Run never returns;

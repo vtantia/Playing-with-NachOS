@@ -105,6 +105,8 @@ class NachOSThread {
     void setPPID(int ppid) { this->ppid = ppid; }
     int getPID() { return pid; }
     int getPPID() { return ppid; }
+    NachOSThread* getParentPointer() { return parentPointer; }
+    NachOSThread* setParentPointer(NachOSThread* parentPointer) { this->parentPointer = parentPointer; }
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
     int getNumInstr() { return numInstr; }
@@ -128,6 +130,7 @@ class NachOSThread {
 					// Used internally by ThreadFork()
 
     int pid, ppid;			// My pid and my parent's pid
+    NachOSThread* parentPointer;
     int numInstr;
 
 #ifdef USER_PROGRAM

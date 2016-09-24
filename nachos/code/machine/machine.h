@@ -33,6 +33,7 @@
 					// simplicity
 
 #define NumPhysPages    64
+#define MaxNumThreads    2500
 #define MemorySize 	(NumPhysPages * PageSize)
 #define TLBSize		4		// if there is a TLB, make it small
 
@@ -184,6 +185,9 @@ class Machine {
     unsigned int pageTableSize;
     bool validPage[NumPhysPages];
     int physPageNumber;
+    int killStatus[MaxNumThreads];
+    int parentPID[MaxNumThreads];
+    bool calledJoin[MaxNumThreads];
 
   private:
     bool singleStep;		// drop back into the debugger after each
