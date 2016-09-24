@@ -34,7 +34,7 @@ main()
        system_call_PrintString("Parent after fork waiting for child: ");
        system_call_PrintInt(x);
        system_call_PrintChar('\n');
-       /*system_call_Join(x);*/
+       system_call_Join(x);
        system_call_Sleep(500);
        system_call_PrintString("Parent executed ");
        system_call_PrintInt(system_call_GetNumInstr());
