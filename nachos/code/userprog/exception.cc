@@ -250,8 +250,8 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
 
        IntStatus oldLevel = interrupt->SetLevel(IntOff);
-       currentThread->PutThreadToSleep();
        scheduler->ThreadIsReadyToSleep(currentThread, ticksToWake);
+       currentThread->PutThreadToSleep();
        interrupt->SetLevel(oldLevel);
     } 
     else if ((which == SyscallException) && (type == SYScall_Yield)) {

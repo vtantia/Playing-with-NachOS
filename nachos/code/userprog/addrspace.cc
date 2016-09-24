@@ -86,12 +86,9 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     NachOSpageTable = new TranslationEntry[numPagesInVM];
     for (i = 0; i < numPagesInVM; i++) {
 	NachOSpageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-        //while (machine->validPage[machine->physPageNumber])
         machine->physPageNumber++;
         machine->validPage[machine->physPageNumber] = true;
-        //NachOSpageTable[i].physicalPage = machine->physPageNumber;
         NachOSpageTable[i].physicalPage = i;
-        //bzero(machine->mainMemory+machine->physPageNumber*PageSize,PageSize);
         //printf("Virtual page %d physical page %d\n",NachOSpageTable[i].virtualPage, NachOSpageTable[i].physicalPage);
 	NachOSpageTable[i].valid = TRUE;
 	NachOSpageTable[i].use = FALSE;
@@ -122,16 +119,12 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     printf("End \n");
 }
 
-void ProcessAddrSpace::copy()
-{
-}
-
 ProcessAddrSpace::ProcessAddrSpace()
 {
     unsigned int i;
-    numPagesInVM = currentThread->space->getNumPages();
+    numPagesInVM = machine->pageTableSize;;
     NachOSpageTable = new TranslationEntry[numPagesInVM];
-    TranslationEntry *currentNachOSpageTable = currentThread->space->getNachOSpageTable();
+    TranslationEntry *currentNachOSpageTable = machine->NachOSpageTable;
 
 // first, set up the translation 
     for (i = 0; i < numPagesInVM; i++) {
@@ -152,8 +145,6 @@ ProcessAddrSpace::ProcessAddrSpace()
             machine->mainMemory[NachOSpageTable[i].physicalPage*PageSize+j] = machine->mainMemory[currentNachOSpageTable[i].physicalPage*PageSize+j];
         }
     }
-        //for(i =0 ; i< numPagesInVM*PageSize ; i++ ) machine->mainMemory[NachOSpageTable[0].physicalPage*PageSize+i] = machine->mainMemory[i];
-    printf("End \n");
 }
 //----------------------------------------------------------------------
 // ProcessAddrSpace::~ProcessAddrSpace
