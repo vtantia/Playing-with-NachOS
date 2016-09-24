@@ -77,9 +77,9 @@ class NachOSThread {
   private:
     // NOTE: DO NOT CHANGE the order of these first two members.
     // THEY MUST be in this position for SWITCH to work.
+    int* stackTop;			 // the current stack pointer
     int machineState[MachineStateSize];  // all registers except for stackTop
 
-    int* stackTop;			 // the current stack pointer
   public:
     //int* stackTop;			 // the current stack pointer
     static int prpid;

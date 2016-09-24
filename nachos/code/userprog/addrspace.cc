@@ -88,7 +88,7 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
 	NachOSpageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
         //while (machine->validPage[machine->physPageNumber])
         machine->physPageNumber++;
-        //machine->validPage[machine->physPageNumber] = true;
+        machine->validPage[machine->physPageNumber] = true;
         //NachOSpageTable[i].physicalPage = machine->physPageNumber;
         NachOSpageTable[i].physicalPage = i;
         //bzero(machine->mainMemory+machine->physPageNumber*PageSize,PageSize);
@@ -145,6 +145,7 @@ ProcessAddrSpace::ProcessAddrSpace()
 	NachOSpageTable[i].use = currentNachOSpageTable[i].use;
 	NachOSpageTable[i].dirty = currentNachOSpageTable[i].dirty;
 	NachOSpageTable[i].readOnly = currentNachOSpageTable[i].readOnly;  // if the code segment was entirely on 
+					
 					// a separate page, we could set its 
 //                                         pages to be read-only
         for (int j=0; j<PageSize; j++) {
@@ -161,11 +162,11 @@ ProcessAddrSpace::ProcessAddrSpace()
 
 ProcessAddrSpace::~ProcessAddrSpace()
 {
-    //int i;
-    //for (i = 0; i < numPagesInVM; i++) {
-        //if (NachOSpageTable[i].valid)
-            //machine->validPage[NachOSpageTable[i].physicalPage] = false;
-    //}
+    int i;
+    for (i = 0; i < numPagesInVM; i++) {
+        if (NachOSpageTable[i].valid)
+            machine->validPage[NachOSpageTable[i].physicalPage] = false;
+    }
    delete NachOSpageTable;
 }
 
