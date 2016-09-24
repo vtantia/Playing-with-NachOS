@@ -281,6 +281,7 @@ NachOSThread::AllocateThreadStack (VoidFunctionPtr func, int arg)
     machineState[PCState] = (int) _ThreadRoot;
     machineState[StartupPCState] = (int) InterruptEnable;
     machineState[InitialPCState] = (int) func;
+    printf("function : %d   ", (int)func);
     machineState[InitialArgState] = arg;
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }

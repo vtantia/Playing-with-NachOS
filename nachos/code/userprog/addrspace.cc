@@ -88,7 +88,7 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
 	NachOSpageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
         //while (machine->validPage[machine->physPageNumber])
         machine->physPageNumber++;
-        //machine->validPage[machine->physPageNumber] = true;
+        machine->validPage[machine->physPageNumber] = true;
         //NachOSpageTable[i].physicalPage = machine->physPageNumber;
         NachOSpageTable[i].physicalPage = i;
         //bzero(machine->mainMemory+machine->physPageNumber*PageSize,PageSize);
@@ -103,7 +103,7 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size+PageSize);
+    bzero(machine->mainMemory, size);
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
@@ -145,6 +145,7 @@ ProcessAddrSpace::ProcessAddrSpace()
 	NachOSpageTable[i].use = currentNachOSpageTable[i].use;
 	NachOSpageTable[i].dirty = currentNachOSpageTable[i].dirty;
 	NachOSpageTable[i].readOnly = currentNachOSpageTable[i].readOnly;  // if the code segment was entirely on 
+					
 					// a separate page, we could set its 
 //                                         pages to be read-only
         for (int j=0; j<PageSize; j++) {
@@ -162,10 +163,10 @@ ProcessAddrSpace::ProcessAddrSpace()
 ProcessAddrSpace::~ProcessAddrSpace()
 {
     int i;
-    //for (i = 0; i < numPagesInVM; i++) {
-        //if (NachOSpageTable[i].valid)
-            //machine->validPage[NachOSpageTable[i].physicalPage] = false;
-    //}
+    for (i = 0; i < numPagesInVM; i++) {
+        if (NachOSpageTable[i].valid)
+            machine->validPage[NachOSpageTable[i].physicalPage] = false;
+    }
    delete NachOSpageTable;
 }
 
@@ -188,11 +189,11 @@ ProcessAddrSpace::InitUserCPURegisters()
 	machine->WriteRegister(i, 0);
 
     // Initial program counter -- must be location of "Start"
-    machine->WriteRegister(PCReg, NachOSpageTable[0].physicalPage*PageSize);	
+    machine->WriteRegister(PCReg, 0 );	
 
     // Need to also tell MIPS where next instruction is, because
     // of branch delay possibility
-    machine->WriteRegister(NextPCReg, NachOSpageTable[0].physicalPage*PageSize+4);
+    machine->WriteRegister(NextPCReg, 4);
 
    // Set the stack register to the end of the address space, where we
    // allocated the stack; but subtract off a bit, to make sure we don't
