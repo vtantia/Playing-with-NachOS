@@ -249,10 +249,14 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
 
-       IntStatus oldLevel = interrupt->SetLevel(IntOff);
-       scheduler->ThreadIsReadyToSleep(currentThread, ticksToWake);
-       currentThread->PutThreadToSleep();
-       interrupt->SetLevel(oldLevel);
+       if (ticksToSleep == 0)
+           currentThread->YieldCPU();
+       else {
+           IntStatus oldLevel = interrupt->SetLevel(IntOff);
+           scheduler->ThreadIsReadyToSleep(currentThread, ticksToWake);
+           currentThread->PutThreadToSleep();
+           interrupt->SetLevel(oldLevel);
+       }
     } 
     else if ((which == SyscallException) && (type == SYScall_Yield)) {
        // Advance program counters.
