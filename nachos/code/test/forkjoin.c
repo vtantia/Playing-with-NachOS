@@ -10,6 +10,9 @@ main()
     system_call_PrintInt(system_call_GetPID());
     system_call_PrintChar('\n');
     x = system_call_Fork();
+       system_call_PrintInt(x);
+       system_call_PrintInt(x);
+       system_call_PrintInt(x);
     if (x == 0) {
        system_call_PrintString("Child PID: ");
        system_call_PrintInt(system_call_GetPID());
@@ -29,6 +32,7 @@ main()
        system_call_PrintString("Child executed ");
        system_call_PrintInt(system_call_GetNumInstr());
        system_call_PrintString(" instructions.\n");
+       system_call_Exec("../test/vectorsum");
     }
     else {
        system_call_PrintString("Parent after fork waiting for child: ");

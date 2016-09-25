@@ -91,7 +91,7 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
         while (machine->validPage[machine->physPageNumber])
             machine->physPageNumber++;
         machine->validPage[machine->physPageNumber] = true;
-        NachOSpageTable[i].physicalPage = i;//machine->physPageNumber;
+        NachOSpageTable[i].physicalPage = machine->physPageNumber;
         bzero(machine->mainMemory+machine->physPageNumber*PageSize, PageSize);
         //printf("Virtual page %d physical page %d\n",NachOSpageTable[i].virtualPage, NachOSpageTable[i].physicalPage);
 	NachOSpageTable[i].valid = TRUE;
@@ -154,8 +154,6 @@ ProcessAddrSpace::ProcessAddrSpace()
 					
 					// a separate page, we could set its 
 //                                         pages to be read-only
-        machine->NachOSpageTable = NachOSpageTable;
-        machine->pageTableSize = numPagesInVM;
         for (int j=0; j<PageSize; j++) {
             machine->mainMemory[NachOSpageTable[i].physicalPage*PageSize+j] = machine->mainMemory[currentNachOSpageTable[i].physicalPage*PageSize+j];
         }
