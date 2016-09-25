@@ -19,6 +19,7 @@
 #include "system.h"
 #include "addrspace.h"
 #include "noff.h"
+#include "../machine/translate.h"
 
 extern int GetPhysAddr(int virtualAddr);
 //----------------------------------------------------------------------
@@ -90,8 +91,8 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
         while (machine->validPage[machine->physPageNumber])
             machine->physPageNumber++;
         machine->validPage[machine->physPageNumber] = true;
-        NachOSpageTable[i].physicalPage = machine->physPageNumber;
-        bzero(machine->mainMemory[machine->physPageNumber], PageSize);
+        NachOSpageTable[i].physicalPage = i;//machine->physPageNumber;
+        bzero(machine->mainMemory+machine->physPageNumber*PageSize, PageSize);
         //printf("Virtual page %d physical page %d\n",NachOSpageTable[i].virtualPage, NachOSpageTable[i].physicalPage);
 	NachOSpageTable[i].valid = TRUE;
 	NachOSpageTable[i].use = FALSE;
@@ -105,11 +106,11 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
 // and the stack segment
 
 // then, copy in the code and data segments into memory
+    machine->NachOSpageTable = NachOSpageTable;
+    machine->pageTableSize = numPagesInVM;
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
 			noffH.code.virtualAddr, noffH.code.size);
-        //executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-			//noffH.code.size, noffH.code.inFileAddr);
         char *temp = new char[noffH.code.size+2];
         executable->ReadAt(temp, noffH.code.size, noffH.code.inFileAddr);
         for(i=0; i<noffH.code.size; i++) {
@@ -120,8 +121,6 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     if (noffH.initData.size > 0) {
         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
 			noffH.initData.virtualAddr, noffH.initData.size);
-        //executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-			//noffH.initData.size, noffH.initData.inFileAddr);
         char *temp = new char[noffH.initData.size+2];
         executable->ReadAt(temp, noffH.initData.size, noffH.initData.inFileAddr);
         for(i=0; i<noffH.initData.size; i++) {
@@ -155,6 +154,8 @@ ProcessAddrSpace::ProcessAddrSpace()
 					
 					// a separate page, we could set its 
 //                                         pages to be read-only
+        machine->NachOSpageTable = NachOSpageTable;
+        machine->pageTableSize = numPagesInVM;
         for (int j=0; j<PageSize; j++) {
             machine->mainMemory[NachOSpageTable[i].physicalPage*PageSize+j] = machine->mainMemory[currentNachOSpageTable[i].physicalPage*PageSize+j];
         }

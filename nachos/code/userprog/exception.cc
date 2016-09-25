@@ -354,6 +354,7 @@ ExceptionHandler(ExceptionType which)
            IntStatus oldLevel = interrupt->SetLevel(IntOff);
            currentThread->PutThreadToSleep();
            interrupt->SetLevel(oldLevel);
+           machine->WriteRegister(2, machine->killStatus[childPID]);
        }
     }
     else {
