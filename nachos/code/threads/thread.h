@@ -119,7 +119,6 @@ class NachOSThread {
     int getMachineState(int pos) { return machineState[pos]; }
     bool isEmptyChildList() { return childList->IsEmpty();  }
     void addChild(NachOSThread* child) { childList->SortedInsert((void *)child, child->getPID()); }
-    //void deleteChild(NachOSThread* childThread);
     void deleteChildList();
 
   private:
