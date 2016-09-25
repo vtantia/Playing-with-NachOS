@@ -29,7 +29,6 @@ class NachOSscheduler {
     void Print();			// Print contents of ready list
     void ThreadIsReadyToSleep(NachOSThread* thread, int ticks);
     void *RemoveFromSleep(int *keyPtr);
-    bool ListsEmpty() { return (readyThreadList->IsEmpty() && sleepThreadList->IsEmpty()); }
     
   private:
     List *readyThreadList;  		// queue of threads that are ready to run,

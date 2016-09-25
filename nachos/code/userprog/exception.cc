@@ -293,7 +293,9 @@ ExceptionHandler(ExceptionType which)
             machine->calledJoin[currentThread->getPPID()] = false;
         }
 
-        if (scheduler->ListsEmpty()) {
+        machine->numRunningProcesses--;
+        if (machine->numRunningProcesses == 0) {
+            printf("Lists empty here");
             IntStatus oldLevel = interrupt->SetLevel(IntOff);
             threadToBeDestroyed = currentThread;
             currentThread = NULL;
@@ -339,6 +341,7 @@ ExceptionHandler(ExceptionType which)
            machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
            machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
            machine->calledJoin[currentThread->getPID()] = true;
+
            IntStatus oldLevel = interrupt->SetLevel(IntOff);
            currentThread->PutThreadToSleep();
            interrupt->SetLevel(oldLevel);

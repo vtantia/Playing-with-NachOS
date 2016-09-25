@@ -115,6 +115,7 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
         executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
+    machine->numRunningProcesses++;
 }
 
 ProcessAddrSpace::ProcessAddrSpace()
@@ -143,6 +144,7 @@ ProcessAddrSpace::ProcessAddrSpace()
             machine->mainMemory[NachOSpageTable[i].physicalPage*PageSize+j] = machine->mainMemory[currentNachOSpageTable[i].physicalPage*PageSize+j];
         }
     }
+    machine->numRunningProcesses++;
 }
 //----------------------------------------------------------------------
 // ProcessAddrSpace::~ProcessAddrSpace

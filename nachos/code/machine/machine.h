@@ -188,6 +188,7 @@ class Machine {
     int killStatus[MaxNumThreads];
     int parentPID[MaxNumThreads];
     bool calledJoin[MaxNumThreads];
+    int numRunningProcesses;
 
   private:
     bool singleStep;		// drop back into the debugger after each
