@@ -280,6 +280,8 @@ ExceptionHandler(ExceptionType which)
           machine->ReadMem(vaddr, 1, &memval);
        }
        memval2[cnt] = '\0';
+        currentThread->deleteChildList();
+        delete currentThread->space;
         machine->numRunningProcesses--;
         //printf("Num :%d\n",machine->numRunningProcesses);
         StartUserProcess((char *)memval2);
