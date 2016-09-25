@@ -339,6 +339,9 @@ ExceptionHandler(ExceptionType which)
     else if ((which == SyscallException) && (type == SYScall_Join)) {
        int childPID = machine->ReadRegister(4);
        int exitCode;
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
        if (machine->parentPID[childPID] != currentThread->getPID()) {
            machine->WriteRegister(2, -1);
        }
@@ -346,9 +349,6 @@ ExceptionHandler(ExceptionType which)
            machine->WriteRegister(2, exitCode);
        }
        else {
-           machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
-           machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
-           machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
            machine->calledJoin[currentThread->getPID()] = true;
 
            IntStatus oldLevel = interrupt->SetLevel(IntOff);
