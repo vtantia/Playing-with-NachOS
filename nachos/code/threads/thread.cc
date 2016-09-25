@@ -39,6 +39,8 @@ NachOSThread::NachOSThread(char* threadName)
     stack = NULL;
     status = JUST_CREATED;
     parentPointer = NULL;
+    childList = NULL;
+    childList = new List;
     setPID();
     numInstr = 0;
 #ifdef USER_PROGRAM
@@ -65,6 +67,7 @@ NachOSThread::~NachOSThread()
     ASSERT(this != currentThread);
     if (stack != NULL)
 	DeallocBoundedArray((char *) stack, StackSize * sizeof(int));
+    delete childList;
 }
 
 //----------------------------------------------------------------------
@@ -257,8 +260,7 @@ NachOSThread::AllocateThreadStack (VoidFunctionPtr func, int arg)
 {
     stack = (int *) AllocBoundedArray(StackSize * sizeof(int));
 
-#ifdef HOST_SNAKE
-    // HP stack works from low addresses to high addresses
+#ifdef HOST_SNAKE // HP stack works from low addresses to high addresses
     stackTop = stack + 16;	// HP requires 64-byte frame marker
     stack[StackSize - 1] = STACK_FENCEPOST;
 #else
@@ -332,4 +334,24 @@ NachOSThread::RestoreUserState()
     for (int i = 0; i < NumTotalRegs; i++)
 	machine->WriteRegister(i, userRegisters[i]);
 }
+
+void
+NachOSThread::deleteChildList()
+{
+    int childPID;
+    while (!isEmptyChildList()) {
+        NachOSThread *childThread = (NachOSThread *) childList->SortedRemove(&childPID);
+        if (machine->killStatus[childPID] == -1500) {
+            childThread->setPPID(-1);
+            childThread->setParentPointer(NULL);
+        }
+    }
+}
 #endif
+
+//void
+//NachOSThread::deleteChild(NachOSThread* childThread)
+//{
+    //for (int i = 0; i < NumTotalRegs; i++)
+	//machine->WriteRegister(i, userRegisters[i]);
+//}

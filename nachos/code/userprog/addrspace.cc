@@ -116,6 +116,7 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
     machine->numRunningProcesses++;
+    //printf("Num :%d\n",machine->numRunningProcesses);
 }
 
 ProcessAddrSpace::ProcessAddrSpace()
@@ -145,6 +146,7 @@ ProcessAddrSpace::ProcessAddrSpace()
         }
     }
     machine->numRunningProcesses++;
+    //printf("Num :%d\n",machine->numRunningProcesses);
 }
 //----------------------------------------------------------------------
 // ProcessAddrSpace::~ProcessAddrSpace

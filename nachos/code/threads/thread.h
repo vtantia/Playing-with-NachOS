@@ -39,6 +39,7 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include "list.h"
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -79,6 +80,7 @@ class NachOSThread {
     // THEY MUST be in this position for SWITCH to work.
     int* stackTop;			 // the current stack pointer
     int machineState[MachineStateSize];  // all registers except for stackTop
+    List* childList;
 
   public:
     //int* stackTop;			 // the current stack pointer
@@ -106,7 +108,7 @@ class NachOSThread {
     int getPID() { return pid; }
     int getPPID() { return ppid; }
     NachOSThread* getParentPointer() { return parentPointer; }
-    NachOSThread* setParentPointer(NachOSThread* parentPointer) { this->parentPointer = parentPointer; }
+    void setParentPointer(NachOSThread* parentPointer) { this->parentPointer = parentPointer; }
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
     int getNumInstr() { return numInstr; }
@@ -115,6 +117,10 @@ class NachOSThread {
     //int* getStackTop() { return stackTop; }
     //int getStack(int pos) { return stack[pos]; }
     int getMachineState(int pos) { return machineState[pos]; }
+    bool isEmptyChildList() { return childList->IsEmpty();  }
+    void addChild(NachOSThread* child) { childList->SortedInsert((void *)child, child->getPID()); }
+    //void deleteChild(NachOSThread* childThread);
+    void deleteChildList();
 
   private:
     // some of the private data for this class is listed above

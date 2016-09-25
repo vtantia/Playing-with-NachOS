@@ -280,22 +280,30 @@ ExceptionHandler(ExceptionType which)
           machine->ReadMem(vaddr, 1, &memval);
        }
        memval2[cnt] = '\0';
+        machine->numRunningProcesses--;
+        //printf("Num :%d\n",machine->numRunningProcesses);
         StartUserProcess((char *)memval2);
     } 
     else if ((which == SyscallException) && (type == SYScall_Exit)) {
+        //printf("EXIT CALL\n");
         int exitCode = machine->ReadRegister(4);
         machine->killStatus[currentThread->getPID()] = exitCode;
 
-        if (machine->calledJoin[currentThread->getPPID()] == true) {
+        currentThread->deleteChildList();
+
+        machine->numRunningProcesses--;
+        //printf("Num :%d\n",machine->numRunningProcesses);
+
+        if (currentThread->getPPID()>=0 && machine->calledJoin[currentThread->getPPID()] == true) {
+            //printf("Inside called Join. PID: %d\n", currentThread->getPPID());
             IntStatus oldLevel = interrupt->SetLevel(IntOff);
             scheduler->ThreadIsReadyToRun(currentThread->getParentPointer());
             interrupt->SetLevel(oldLevel);
             machine->calledJoin[currentThread->getPPID()] = false;
         }
 
-        machine->numRunningProcesses--;
         if (machine->numRunningProcesses == 0) {
-            printf("Lists empty here");
+            //printf("Lists empty here");
             IntStatus oldLevel = interrupt->SetLevel(IntOff);
             threadToBeDestroyed = currentThread;
             currentThread = NULL;
@@ -310,6 +318,7 @@ ExceptionHandler(ExceptionType which)
        newThread->setPPID(currentThread->getPID());
        newThread->setParentPointer(currentThread);
        machine->parentPID[newThread->getPID()] = newThread->getPPID();
+       currentThread->addChild(newThread);
 
        machine->WriteRegister(2, 0);//newThread->getPID());
         //Advance program counters.
