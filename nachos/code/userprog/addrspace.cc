@@ -20,6 +20,7 @@
 #include "addrspace.h"
 #include "noff.h"
 
+extern int GetPhysAddr(int virtualAddr);
 //----------------------------------------------------------------------
 // SwapHeader
 // 	Do little endian to big endian conversion on the bytes in the 
@@ -86,9 +87,11 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     NachOSpageTable = new TranslationEntry[numPagesInVM];
     for (i = 0; i < numPagesInVM; i++) {
 	NachOSpageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-        machine->physPageNumber++;
+        while (machine->validPage[machine->physPageNumber])
+            machine->physPageNumber++;
         machine->validPage[machine->physPageNumber] = true;
-        NachOSpageTable[i].physicalPage = i;
+        NachOSpageTable[i].physicalPage = machine->physPageNumber;
+        bzero(machine->mainMemory[machine->physPageNumber], PageSize);
         //printf("Virtual page %d physical page %d\n",NachOSpageTable[i].virtualPage, NachOSpageTable[i].physicalPage);
 	NachOSpageTable[i].valid = TRUE;
 	NachOSpageTable[i].use = FALSE;
@@ -100,20 +103,31 @@ ProcessAddrSpace::ProcessAddrSpace(OpenFile *executable)
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size);
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
 			noffH.code.virtualAddr, noffH.code.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-			noffH.code.size, noffH.code.inFileAddr);
+        //executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
+			//noffH.code.size, noffH.code.inFileAddr);
+        char *temp = new char[noffH.code.size+2];
+        executable->ReadAt(temp, noffH.code.size, noffH.code.inFileAddr);
+        for(i=0; i<noffH.code.size; i++) {
+            machine->mainMemory[GetPhysAddr(noffH.code.virtualAddr+i)] = temp[i];
+        }
+        delete temp;
     }
     if (noffH.initData.size > 0) {
         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
 			noffH.initData.virtualAddr, noffH.initData.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-			noffH.initData.size, noffH.initData.inFileAddr);
+        //executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
+			//noffH.initData.size, noffH.initData.inFileAddr);
+        char *temp = new char[noffH.initData.size+2];
+        executable->ReadAt(temp, noffH.initData.size, noffH.initData.inFileAddr);
+        for(i=0; i<noffH.initData.size; i++) {
+            machine->mainMemory[GetPhysAddr(noffH.initData.virtualAddr+i)] = temp[i];
+        }
+        delete temp;
     }
     machine->numRunningProcesses++;
     //printf("Num :%d\n",machine->numRunningProcesses);
