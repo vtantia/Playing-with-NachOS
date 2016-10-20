@@ -112,9 +112,11 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
     // in switch.s.  You may have to think
     // a bit to figure out what happens after this, both from the point
     // of view of the thread and from the perspective of the "outside world".
-
+    //
+    printf("here111\n");
     _SWITCH(oldThread, nextThread);
     
+    printf("here22\n");
     DEBUG('t', "Now in thread \"%s\" with pid %d\n", currentThread->getName(), currentThread->GetPID());
 
     // If the old thread gave up the processor because it was finishing,
@@ -125,7 +127,7 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
         delete threadToBeDestroyed;
 	threadToBeDestroyed = NULL;
     }
-    
+
 #ifdef USER_PROGRAM
     if (currentThread->space != NULL) {		// if there is an address space
         currentThread->RestoreUserState();     // to restore, do it.
