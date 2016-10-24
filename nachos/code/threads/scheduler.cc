@@ -113,10 +113,9 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
     // a bit to figure out what happens after this, both from the point
     // of view of the thread and from the perspective of the "outside world".
     //
-    printf("here111\n");
     _SWITCH(oldThread, nextThread);
     
-    printf("here22\n");
+    //printf("here22\n");
     DEBUG('t', "Now in thread \"%s\" with pid %d\n", currentThread->getName(), currentThread->GetPID());
 
     // If the old thread gave up the processor because it was finishing,

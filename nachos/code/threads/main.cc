@@ -156,18 +156,20 @@ main(int argc, char **argv)
                    }
 
                    space = new ProcessAddrSpace(newListExec);
+                   space->InitUserCPURegisters();
                    newListThread->space = space;
 
                    delete newListExec;
 
                    newListThread->AllocateThreadStack(ForkStartFunction,0);
+                   newListThread->SaveUserState();
                    newListThread->Schedule();
                }
                argCount=2;
                exitThreadArray[currentThread->GetPID()] = true;
               
                  // Find out if all threads have called exit
-                 printf("here!!!\n");
+                 //printf("here!!!\n");
                  int i;
                   for ( i=0; i<thread_index; i++) {
                       if (!exitThreadArray[i]) break;
