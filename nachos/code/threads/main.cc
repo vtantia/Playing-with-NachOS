@@ -14,8 +14,7 @@
 //		-p <nachos file> -r <nachos file> -l -D -t
 //              -n <network reliability> -m <machine id>
 //              -o <other machine id>
-//              -z
-//
+//              -z //
 //    -d causes certain debugging messages to be printed (cf. utility.h)
 //    -rs causes Yield to occur at random (but repeatable) spots
 //    -z prints the copyright message
@@ -63,6 +62,7 @@ extern void Print(char *file), PerformanceTest(void);
 extern void StartUserProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
 extern void ForkStartFunction(int );
+int algo;
 
 //void ForkStartFunction(int dummy){
     //currentThread->Startup();
@@ -123,6 +123,10 @@ main(int argc, char **argv)
                std::string line;
                char execName[50];
                int prior;
+
+               std::getline(infile, line);
+               std::istringstream iss1(line);
+               iss1 >> algo;
 
                while(std::getline(infile ,line)){  
 

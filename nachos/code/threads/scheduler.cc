@@ -57,6 +57,7 @@ NachOSscheduler::ThreadIsReadyToRun (NachOSThread *thread)
 
     thread->setStatus(READY);
     readyThreadList->Append((void *)thread);
+    thread->startWait = stats->totalTicks;
 }
 
 //----------------------------------------------------------------------
@@ -104,6 +105,12 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
 
     currentThread = nextThread;		    // switch to the next thread
     currentThread->setStatus(RUNNING);      // nextThread is now running
+
+
+    oldThread->endRunning();
+    currentThread->startRunning();
+
+
     
     DEBUG('t', "Switching from thread \"%s\" with pid %d to thread \"%s\" with pid %d\n",
 	  oldThread->getName(), oldThread->GetPID(), nextThread->getName(), nextThread->GetPID());

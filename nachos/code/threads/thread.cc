@@ -61,6 +61,8 @@ NachOSThread::NachOSThread(char* threadName)
     for (i=0; i<MAX_CHILD_COUNT; i++) exitedChild[i] = false;
 
     instructionCount = 0;
+    waitTime = 0;
+    runTime = 0;
 }
 
 //----------------------------------------------------------------------
@@ -78,6 +80,9 @@ NachOSThread::NachOSThread(char* threadName)
 NachOSThread::~NachOSThread()
 {
     DEBUG('t', "Deleting thread \"%s\" with pid %d\n", name, pid);
+    //printf("Thread %d: runTime: %d, waitTime=%d", pid, runTime, waitTime);
+    //fflush(stdout);
+    updateTotalTimes();
 
     ASSERT(this != currentThread);
     if (stack != NULL)
@@ -561,4 +566,33 @@ unsigned
 NachOSThread::GetInstructionCount (void)
 {
    return instructionCount;
+}
+
+void
+NachOSThread::endRunning ()
+{
+    int burstLength = stats->totalTicks - startRun;
+    stats->maxBurst = (stats->maxBurst > burstLength) ? stats->maxBurst: burstLength; //std::max(stats->maxBurst, burstLength);
+    stats->minBurst = (stats->minBurst < burstLength) ? stats->minBurst: burstLength; //std::min(stats->minBurst, burstLength);
+    if (burstLength > 0)
+    {
+        stats->numBursts ++;
+        runTime += burstLength;
+    }
+}
+
+void
+NachOSThread::startRunning ()
+{
+    waitTime += stats->totalTicks - startWait;
+    startRun = stats->totalTicks;
+}
+
+void
+NachOSThread::updateTotalTimes ()
+{
+    stats->totalRunTime += runTime;
+    stats->totalWaitTime += waitTime;
+
+    stats->completionTimes[pid] = stats->totalTicks;
 }
