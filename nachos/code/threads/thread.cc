@@ -235,6 +235,7 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
        }
     }
 
+    currentThread->endRunning();
     while ((nextThread = scheduler->FindNextThreadToRun()) == NULL) {
         if (terminateSim) {
            DEBUG('i', "Machine idle.  No interrupts to do.\n");
@@ -278,6 +279,7 @@ NachOSThread::YieldCPU ()
     nextThread = scheduler->FindNextThreadToRun();
     if (nextThread != NULL) {
 	scheduler->ThreadIsReadyToRun(this);
+        currentThread->endRunning();
 	scheduler->Schedule(nextThread);
     }
     (void) interrupt->SetLevel(oldLevel);
@@ -313,6 +315,7 @@ NachOSThread::PutThreadToSleep ()
     DEBUG('t', "Sleeping thread \"%s\" with pid %d\n", getName(), pid);
 
     status = BLOCKED;
+    currentThread->endRunning();
     while ((nextThread = scheduler->FindNextThreadToRun()) == NULL)
 	interrupt->Idle();	// no one to run, wait for an interrupt
         

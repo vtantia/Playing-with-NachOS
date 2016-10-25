@@ -107,7 +107,6 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
     currentThread->setStatus(RUNNING);      // nextThread is now running
 
 
-    oldThread->endRunning();
     currentThread->startRunning();
 
 
