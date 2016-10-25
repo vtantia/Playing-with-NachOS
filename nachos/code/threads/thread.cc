@@ -32,7 +32,9 @@
 //	"threadName" is an arbitrary string, useful for debugging.
 //----------------------------------------------------------------------
 
-NachOSThread::NachOSThread(char* threadName)
+NachOSThread::NachOSThread(char* threadName) 
+//: predBurst(burst_prior[0])
+//: priority(burst_prior[1])
 {
     int i;
 
@@ -63,6 +65,8 @@ NachOSThread::NachOSThread(char* threadName)
     instructionCount = 0;
     waitTime = 0;
     runTime = 0;
+    prevBurst = 0;
+    burst_prior[0] = burst_prior[1] = 0;
 }
 
 //----------------------------------------------------------------------
@@ -576,8 +580,12 @@ void
 NachOSThread::endRunning ()
 {
     int burstLength = stats->totalTicks - startRun;
+
     stats->maxBurst = (stats->maxBurst > burstLength) ? stats->maxBurst: burstLength; //std::max(stats->maxBurst, burstLength);
     stats->minBurst = (stats->minBurst < burstLength) ? stats->minBurst: burstLength; //std::min(stats->minBurst, burstLength);
+
+    burst_prior[0] = (burstLength + burst_prior[0])/2;
+    //prevBurst = burstLength;
     if (burstLength > 0)
     {
         stats->numBursts ++;

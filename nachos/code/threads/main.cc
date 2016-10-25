@@ -62,7 +62,7 @@ extern void Print(char *file), PerformanceTest(void);
 extern void StartUserProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
 extern void ForkStartFunction(int );
-int algo;
+int algo = 1;
 int toEndRun = true;
 
 //void ForkStartFunction(int dummy){
