@@ -240,6 +240,11 @@ Interrupt::Idle()
 void
 Interrupt::Halt()
 {
+    if (toEndRun)
+        currentThread->endRunning();
+    currentThread->updateTotalTimes();
+    stats->threadCount = thread_index;
+    stats->generateFinalStats();
     printf("Machine halting!\n\n");
     stats->Print();
     Cleanup();     // Never returns.

@@ -57,6 +57,7 @@ NachOSscheduler::ThreadIsReadyToRun (NachOSThread *thread)
 
     thread->setStatus(READY);
     readyThreadList->Append((void *)thread);
+    thread->startWait = stats->totalTicks;
 }
 
 //----------------------------------------------------------------------
@@ -104,6 +105,11 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
 
     currentThread = nextThread;		    // switch to the next thread
     currentThread->setStatus(RUNNING);      // nextThread is now running
+
+
+    currentThread->startRunning();
+
+
     
     DEBUG('t', "Switching from thread \"%s\" with pid %d to thread \"%s\" with pid %d\n",
 	  oldThread->getName(), oldThread->GetPID(), nextThread->getName(), nextThread->GetPID());
@@ -112,9 +118,10 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
     // in switch.s.  You may have to think
     // a bit to figure out what happens after this, both from the point
     // of view of the thread and from the perspective of the "outside world".
-
+    //
     _SWITCH(oldThread, nextThread);
     
+    //printf("here22\n");
     DEBUG('t', "Now in thread \"%s\" with pid %d\n", currentThread->getName(), currentThread->GetPID());
 
     // If the old thread gave up the processor because it was finishing,
@@ -125,7 +132,7 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
         delete threadToBeDestroyed;
 	threadToBeDestroyed = NULL;
     }
-    
+
 #ifdef USER_PROGRAM
     if (currentThread->space != NULL) {		// if there is an address space
         currentThread->RestoreUserState();     // to restore, do it.

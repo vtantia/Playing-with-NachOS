@@ -14,8 +14,7 @@
 //		-p <nachos file> -r <nachos file> -l -D -t
 //              -n <network reliability> -m <machine id>
 //              -o <other machine id>
-//              -z
-//
+//              -z //
 //    -d causes certain debugging messages to be printed (cf. utility.h)
 //    -rs causes Yield to occur at random (but repeatable) spots
 //    -z prints the copyright message
@@ -52,14 +51,25 @@
 
 #include "utility.h"
 #include "system.h"
-
-
+#include "fstream"
+#include <sstream>
+#include <string>
+//#include "../userprog/addrspace.h"
 // External functions used by this file
 
 extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
 extern void Print(char *file), PerformanceTest(void);
 extern void StartUserProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
+extern void ForkStartFunction(int );
+int algo;
+int toEndRun = true;
+
+//void ForkStartFunction(int dummy){
+    //currentThread->Startup();
+    //machine->Run();
+//}
+
 
 //----------------------------------------------------------------------
 // main
@@ -108,7 +118,70 @@ main(int argc, char **argv)
 	    interrupt->Halt();		// once we start the console, then 
 					// Nachos will loop forever waiting 
 					// for console input
-	}
+     	} else if (!strcmp(*argv, "-F")){
+            ASSERT(argc >1 );
+               std::ifstream infile(*(argv + 1));
+               std::string line;
+               char execName[50];
+               int prior;
+
+               std::getline(infile, line);
+               std::istringstream iss1(line);
+               iss1 >> algo;
+
+               while(std::getline(infile ,line)){  
+
+                   std::istringstream iss(line);
+                   std::streampos pos=iss.tellg();
+                   if (iss >> execName >> prior){
+                   
+                       //printf("%s %d\n",execName, prior);
+                   } else { 
+                     iss.clear();
+                     iss.seekg(pos);
+
+                     if( iss >> execName ){
+                        prior =100;
+                        //printf("%s %d\n",execName,prior);
+                     } else {
+                        break;
+                     }                  
+                   }
+                   // execName now contains the next executable name
+                   // prior contains priority of the corresponding executable
+                   NachOSThread* newListThread;
+                   newListThread = new NachOSThread(execName);
+                
+                   OpenFile *newListExec = fileSystem->Open(execName);
+                   ProcessAddrSpace *space;
+
+                   if (newListExec == NULL ){
+                   printf("Unable to open file %s\n",execName);
+                   break;
+                   }
+
+                   space = new ProcessAddrSpace(newListExec);
+                   space->InitUserCPURegisters();
+                   newListThread->space = space;
+
+                   delete newListExec;
+
+                   newListThread->AllocateThreadStack(ForkStartFunction,0);
+                   newListThread->SaveUserState();
+                   newListThread->Schedule();
+               }
+               argCount=2;
+               exitThreadArray[currentThread->GetPID()] = true;
+              
+                 // Find out if all threads have called exit
+                 int i;
+                  for ( i=0; i<thread_index; i++) {
+                      if (!exitThreadArray[i]) break;
+               }
+               currentThread->Exit(i==thread_index, 0);
+
+        }
+        
 #endif // USER_PROGRAM
 #ifdef FILESYS
 	if (!strcmp(*argv, "-cp")) { 		// copy from UNIX to Nachos

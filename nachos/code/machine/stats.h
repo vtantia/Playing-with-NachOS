@@ -13,6 +13,8 @@
 
 #include "copyright.h"
 
+#define MAX_THREAD_COUNT 1000
+
 // The following class defines the statistics that are to be kept
 // about Nachos behavior -- how much time (ticks) elapsed, how
 // many user instructions executed, etc.
@@ -36,9 +38,28 @@ class Statistics {
     int numPacketsSent;		// number of packets sent over the network
     int numPacketsRecvd;	// number of packets received over the network
 
+    int busyTicks;              
+    int totalRunTime;
+    int totalWaitTime;
+    double cpuUtilization;         
+    int avgWaitTime;
+
+    int maxBurst;
+    int minBurst;
+    int numBursts;
+
+    int completionTimes[MAX_THREAD_COUNT];
+    int maxCompletion;
+    int minCompletion;
+    double avgCompletion;
+    double variance;
+
+    int threadCount;
+
     Statistics(); 		// initialize everything to zero
 
     void Print();		// print collected statistics
+    void generateFinalStats();
 };
 
 // Constants used to reflect the relative time an operation would

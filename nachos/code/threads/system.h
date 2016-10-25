@@ -16,8 +16,6 @@
 #include "stats.h"
 #include "timer.h"
 
-#define MAX_THREAD_COUNT 1000
-
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
 						// called before anything else
@@ -36,6 +34,8 @@ extern NachOSThread *threadArray[];  			// Array of thread pointers
 extern unsigned thread_index;                  // Index into this array (also used to assign unique pid)
 extern bool initializedConsoleSemaphores;       // Used to initialize the semaphores for console I/O exactly once
 extern bool exitThreadArray[];          // Marks exited threads
+extern int algo; // Stores the algorithm type
+extern int toEndRun; // Stores whether hall should call endRunning function
 
 class TimeSortedWaitQueue {             // Needed to implement SYScall_Sleep
 private:
