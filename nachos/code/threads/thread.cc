@@ -241,6 +241,7 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
            DEBUG('i', "Machine idle.  No interrupts to do.\n");
            printf("\nNo threads ready or runnable, and no pending interrupts.\n");
            printf("Assuming all programs completed.\n");
+           toEndRun = false;
            interrupt->Halt();
         }
         else interrupt->Idle();      // no one to run, wait for an interrupt

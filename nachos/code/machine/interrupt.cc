@@ -240,7 +240,8 @@ Interrupt::Idle()
 void
 Interrupt::Halt()
 {
-    currentThread->endRunning();
+    if (toEndRun)
+        currentThread->endRunning();
     currentThread->updateTotalTimes();
     stats->threadCount = thread_index;
     stats->generateFinalStats();

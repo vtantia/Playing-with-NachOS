@@ -63,6 +63,7 @@ extern void StartUserProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
 extern void ForkStartFunction(int );
 int algo;
+int toEndRun = true;
 
 //void ForkStartFunction(int dummy){
     //currentThread->Startup();
@@ -134,14 +135,14 @@ main(int argc, char **argv)
                    std::streampos pos=iss.tellg();
                    if (iss >> execName >> prior){
                    
-                       printf("%s %d\n",execName, prior);
+                       //printf("%s %d\n",execName, prior);
                    } else { 
                      iss.clear();
                      iss.seekg(pos);
 
                      if( iss >> execName ){
                         prior =100;
-                        printf("%s %d\n",execName,prior);
+                        //printf("%s %d\n",execName,prior);
                      } else {
                         break;
                      }                  
@@ -173,7 +174,6 @@ main(int argc, char **argv)
                exitThreadArray[currentThread->GetPID()] = true;
               
                  // Find out if all threads have called exit
-                 //printf("here!!!\n");
                  int i;
                   for ( i=0; i<thread_index; i++) {
                       if (!exitThreadArray[i]) break;
