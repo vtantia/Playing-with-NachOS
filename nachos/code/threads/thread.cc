@@ -67,6 +67,8 @@ NachOSThread::NachOSThread(char* threadName)
     runTime = 0;
     prevBurst = 0;
     burst_prior[0] = burst_prior[1] = 0;
+    CPU_usage = 0;
+    basePrior = 0;
 }
 
 //----------------------------------------------------------------------
@@ -240,16 +242,30 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
     }
 
     currentThread->endRunning();
+    printf("in exit!!!!!\n");
     while ((nextThread = scheduler->FindNextThreadToRun()) == NULL) {
+        //if (nextThread == NULL) printf("in null3\n");
+        //ListElement *iter = scheduler->readyThreadList->getFirst();
+        //printf("Started printing ready list");
+        //while (iter!=NULL)
+        //{
+        //    printf("%d ", ((NachOSThread *)iter->item)->GetPID());
+        //}
+        //printf("\nCompleted printing ready list");
+        //scheduler->readyThreadList->PrintList();
+        //scheduler->sleThreadList->PrintList();
         if (terminateSim) {
            DEBUG('i', "Machine idle.  No interrupts to do.\n");
            printf("\nNo threads ready or runnable, and no pending interrupts.\n");
            printf("Assuming all programs completed.\n");
            toEndRun = false;
+           //printf("above halt\n");
            interrupt->Halt();
         }
         else interrupt->Idle();      // no one to run, wait for an interrupt
+        //printf("after idle\n");
     }
+    printf("in exit222!!!\n");
     scheduler->Schedule(nextThread); // returns when we've been signalled
 }
 
@@ -586,6 +602,9 @@ NachOSThread::endRunning ()
 
     burst_prior[0] = (burstLength + burst_prior[0])/2;
     //prevBurst = burstLength;
+
+    CPU_usage += burstLength;
+
     if (burstLength > 0)
     {
         stats->numBursts ++;

@@ -145,6 +145,8 @@ class NachOSThread {
     int startWait;
     int prevBurst;
     int burst_prior[2];
+    int CPU_usage;
+    int basePrior;
 
   private:
     // some of the private data for this class is listed above

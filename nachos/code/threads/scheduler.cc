@@ -91,17 +91,42 @@ NachOSscheduler::FindNextThreadToRun ()
             burst_prior_ind = 1;
 
         int minValue = ((NachOSThread *)firstElem->item)->burst_prior[burst_prior_ind];
-        printf("Min Value: %d\n", minValue);
+        //printf("Min Value: %d\n", minValue);
+
+        //if (algo >= 7){
+            //while(iterElem != NULL) {
+         //   printf("inside 77777\n");
+         //       ((NachOSThread*)iterElem->item)->CPU_usage /=2;
+         //       ((NachOSThread*)iterElem->item)->burst_prior[1] =   ((NachOSThread*)iterElem->item)->basePrior +  ((NachOSThread*)iterElem->item)->CPU_usage/2;
+         //      printf("burst_prior : %d\n",   ((NachOSThread*)iterElem->item)->burst_prior[1] ) ;
+         //       iterElem = iterElem->next;
+         //    }
+         //   iterElem  =  firstElem;
+
+        //}
+
+       //printf("Here!!"); 
+
 
         while((nextElem=iterElem->next) != NULL) {
             if (((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind] < minValue)
             {
                 minValue = ((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind];
-                printf("New Min Value: %d\n", minValue);
+                printf("Change minElem : New Min Value: %d\n", minValue);
                 minElem = iterElem;
             }
+            //else if (((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind] == minValue){
+                //if   ( ((NachOSThread *)nextElem->item)->startWait < ((NachOSThread *)minElem->item)->startWait ){
+                //minValue = ((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind];
+                //printf("New Min Value: %d\n", minValue);
+                //minElem = iterElem;
+    
+            //}
+            
+            //}
             iterElem = iterElem->next;
         }
+       // printf("Here2222\n");
     }
     //printf("Reached here 2\n");
     //fflush(stdout);
@@ -114,7 +139,10 @@ NachOSscheduler::FindNextThreadToRun ()
     //}
     //printf("Count before is %d\n", cnt);
     //fflush(stdout);
+    //printf("just here\n");
+    //if (minElem == NULL) printf("in null check\n");
     NachOSThread *toReturn = (NachOSThread *)readyThreadList->RemoveElement(minElem);
+    if (toReturn == NULL ) printf("in null 2\n");
     //firstElem = readyThreadList->getFirst();
     //cnt = 0;
     //iterElem = firstElem;
