@@ -72,16 +72,15 @@ NachOSThread *
 NachOSscheduler::FindNextThreadToRun ()
 {
     ListElement *firstElem = readyThreadList->getFirst();
-    if (firstElem == NULL)
+    if (firstElem == NULL){
         return NULL;
+    }
 
     ListElement *minElem = NULL;
     ListElement *iterElem = firstElem;
     ListElement *nextElem;
     //ListElement *prevElem;
 
-    //printf("Reached here 1\n");
-    //fflush(stdout);
     if (algo == 2 || algo >=7) {
 
         int burst_prior_ind;
@@ -91,17 +90,26 @@ NachOSscheduler::FindNextThreadToRun ()
             burst_prior_ind = 1;
 
         int minValue = ((NachOSThread *)firstElem->item)->burst_prior[burst_prior_ind];
-        //printf("Min Value: %d\n", minValue);
+
 
         while((nextElem=iterElem->next) != NULL) {
             if (((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind] < minValue)
             {
                 minValue = ((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind];
-                printf("New Min Value: %d\n", minValue);
                 minElem = iterElem;
             }
+            //else if (((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind] == minValue){
+                //if   ( ((NachOSThread *)nextElem->item)->startWait < ((NachOSThread *)minElem->item)->startWait ){
+                //minValue = ((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind];
+                //printf("New Min Value: %d\n", minValue);
+                //minElem = iterElem;
+    
+            //}
+            
+            //}
             iterElem = iterElem->next;
         }
+       // printf("Here2222\n");
     }
     //printf("Reached here 2\n");
     //fflush(stdout);
@@ -114,6 +122,8 @@ NachOSscheduler::FindNextThreadToRun ()
     //}
     //printf("Count before is %d\n", cnt);
     //fflush(stdout);
+    //printf("just here\n");
+    //if (minElem == NULL) printf("in null check\n");
     NachOSThread *toReturn = (NachOSThread *)readyThreadList->RemoveElement(minElem);
     //firstElem = readyThreadList->getFirst();
     //cnt = 0;
@@ -173,9 +183,11 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
     // a bit to figure out what happens after this, both from the point
     // of view of the thread and from the perspective of the "outside world".
     //
+    //printf("here1.5!\n");
+
     _SWITCH(oldThread, nextThread);
     
-    //printf("here22\n");
+    //printf("here2.5\n");
     DEBUG('t', "Now in thread \"%s\" with pid %d\n", currentThread->getName(), currentThread->GetPID());
 
     // If the old thread gave up the processor because it was finishing,
@@ -187,12 +199,14 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
 	threadToBeDestroyed = NULL;
     }
 
+
 #ifdef USER_PROGRAM
     if (currentThread->space != NULL) {		// if there is an address space
         currentThread->RestoreUserState();     // to restore, do it.
 	currentThread->space->RestoreStateOnSwitch();
     }
 #endif
+
 }
 
 //----------------------------------------------------------------------

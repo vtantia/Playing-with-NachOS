@@ -66,8 +66,8 @@ Statistics::generateFinalStats()
     {
         //maxCompletion = std::max(maxCompletion, completionTimes[i]);
         //minCompletion = std::min(minCompletion, completionTimes[i]);
-        maxCompletion = (maxCompletion > completionTimes[i]) ? maxCompletion: completionTimes[i]; //std::max(stats->maxBurst, burstLength);
-        minCompletion = (minCompletion < completionTimes[i]) ? minCompletion: completionTimes[i]; //std::min(stats->minBurst, burstLength);
+        maxCompletion = (maxCompletion > completionTimes[i]) ? maxCompletion: completionTimes[i]; 
+        minCompletion = (minCompletion < completionTimes[i]) ? minCompletion: completionTimes[i];
         if (completionTimes[i] == 0)
             printf("%d ..............", i);
         avgCompletion += completionTimes[i];

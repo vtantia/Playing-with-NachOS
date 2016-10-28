@@ -29,6 +29,7 @@ class NachOSscheduler {
     void Print();			// Print contents of ready list
     
     void Tail();                        // Used by fork()
+    List* getReadyList(void) {return readyThreadList ; }
 
   private:
     List *readyThreadList;  		// queue of threads that are ready to run,

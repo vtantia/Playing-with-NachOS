@@ -174,7 +174,12 @@ main(int argc, char **argv)
                    space = new ProcessAddrSpace(newListExec);
                    space->InitUserCPURegisters();
                    newListThread->space = space;
+                   
+                   //printf("Prior is : %d", prior);
+                   newListThread->basePrior = prior + 50;
 
+                   newListThread->burst_prior[1]= newListThread->basePrior;
+                   
                    delete newListExec;
 
                    newListThread->AllocateThreadStack(ForkStartFunction,0);

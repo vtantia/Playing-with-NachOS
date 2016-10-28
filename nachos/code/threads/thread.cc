@@ -67,6 +67,9 @@ NachOSThread::NachOSThread(char* threadName)
     runTime = 0;
     prevBurst = 0;
     burst_prior[0] = burst_prior[1] = 0;
+    CPU_usage = 0;
+    basePrior = 0;
+    burstLength = 0;
 }
 
 //----------------------------------------------------------------------
@@ -241,16 +244,29 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
 
     currentThread->endRunning();
     while ((nextThread = scheduler->FindNextThreadToRun()) == NULL) {
+        //if (nextThread == NULL) printf("in null3\n");
+        //ListElement *iter = scheduler->readyThreadList->getFirst();
+        //printf("Started printing ready list");
+        //while (iter!=NULL)
+        //{
+        //    printf("%d ", ((NachOSThread *)iter->item)->GetPID());
+        //}
+        //printf("\nCompleted printing ready list");
+        //scheduler->readyThreadList->PrintList();
+        //scheduler->sleThreadList->PrintList();
         if (terminateSim) {
            DEBUG('i', "Machine idle.  No interrupts to do.\n");
            printf("\nNo threads ready or runnable, and no pending interrupts.\n");
            printf("Assuming all programs completed.\n");
            toEndRun = false;
+           //printf("above halt\n");
            interrupt->Halt();
         }
         else interrupt->Idle();      // no one to run, wait for an interrupt
+        //printf("after idle\n");
     }
     scheduler->Schedule(nextThread); // returns when we've been signalled
+
 }
 
 //----------------------------------------------------------------------
@@ -281,11 +297,28 @@ NachOSThread::YieldCPU ()
     
     DEBUG('t', "Yielding thread \"%s\" with pid %d\n", getName(), pid);
     
+    currentThread->endRunning();
     nextThread = scheduler->FindNextThreadToRun();
+
     if (nextThread != NULL) {
-	scheduler->ThreadIsReadyToRun(this);
-        currentThread->endRunning();
-	scheduler->Schedule(nextThread);
+
+        //currentThread->endRunning();
+
+        //currentThread->CPU_usage /= 2;
+         //currentThread->burst_prior[1]  = currentThread->basePrior+ currentThread->CPU_usage/2;
+
+         if (algo >=7 && currentThread->burst_prior[1] < nextThread->burst_prior[1] ){
+             (scheduler->getReadyList())->Append(nextThread);
+              nextThread = currentThread;
+         } else {
+              scheduler->ThreadIsReadyToRun(this);
+         }
+
+    	//scheduler->ThreadIsReadyToRun(this);
+     	scheduler->Schedule(nextThread);
+    }else {
+    
+     	scheduler->Schedule(currentThread);
     }
     (void) interrupt->SetLevel(oldLevel);
 }
@@ -321,8 +354,16 @@ NachOSThread::PutThreadToSleep ()
 
     status = BLOCKED;
     currentThread->endRunning();
-    while ((nextThread = scheduler->FindNextThreadToRun()) == NULL)
+
+    while ((nextThread = scheduler->FindNextThreadToRun()) == NULL){
+        //printf("inside find");
+        //fflush(stdout);
 	interrupt->Idle();	// no one to run, wait for an interrupt
+
+        //printf("after idle\n");
+
+        //fflush(stdout);
+    }
         
     scheduler->Schedule(nextThread); // returns when we've been signalled
 }
@@ -489,10 +530,12 @@ NachOSThread::ResetReturnValue ()
 void
 NachOSThread::Schedule()
 {
+
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
     scheduler->ThreadIsReadyToRun(this);        // ThreadIsReadyToRun assumes that interrupts
                                         // are disabled!
     (void) interrupt->SetLevel(oldLevel);
+
 }
 
 //----------------------------------------------------------------------
@@ -579,18 +622,34 @@ NachOSThread::GetInstructionCount (void)
 void
 NachOSThread::endRunning ()
 {
-    int burstLength = stats->totalTicks - startRun;
+    burstLength = stats->totalTicks - startRun;
 
     stats->maxBurst = (stats->maxBurst > burstLength) ? stats->maxBurst: burstLength; //std::max(stats->maxBurst, burstLength);
     stats->minBurst = (stats->minBurst < burstLength) ? stats->minBurst: burstLength; //std::min(stats->minBurst, burstLength);
 
     burst_prior[0] = (burstLength + burst_prior[0])/2;
     //prevBurst = burstLength;
+
+    //CPU_usage += burstLength;
+
     if (burstLength > 0)
     {
+        CPU_usage += burstLength;
         stats->numBursts ++;
         runTime += burstLength;
+
+        for (int i=1; i< thread_index; i++ ){
+        
+            if (threadArray[i] != NULL && exitThreadArray[i] == 0){
+                threadArray[i]->CPU_usage /=2 ;
+                threadArray[i]->burst_prior[1] = threadArray[i]->basePrior + threadArray[i]->CPU_usage/2;
+            }
+    
+         }
+
     }
+
+
 }
 
 void
