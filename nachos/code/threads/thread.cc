@@ -243,7 +243,6 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
     }
 
     currentThread->endRunning();
-    printf("in exit!!!!!\n");
     while ((nextThread = scheduler->FindNextThreadToRun()) == NULL) {
         //if (nextThread == NULL) printf("in null3\n");
         //ListElement *iter = scheduler->readyThreadList->getFirst();
@@ -266,9 +265,7 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
         else interrupt->Idle();      // no one to run, wait for an interrupt
         //printf("after idle\n");
     }
-    printf("in exit222!!!\n");
     scheduler->Schedule(nextThread); // returns when we've been signalled
-    printf("here2.34!\n");
 
 }
 
@@ -300,23 +297,28 @@ NachOSThread::YieldCPU ()
     
     DEBUG('t', "Yielding thread \"%s\" with pid %d\n", getName(), pid);
     
+    currentThread->endRunning();
     nextThread = scheduler->FindNextThreadToRun();
 
     if (nextThread != NULL) {
 
-    currentThread->endRunning();
+        //currentThread->endRunning();
 
-    //currentThread->CPU_usage /= 2;
-    //currentThread->burst_prior[1]  = currentThread->basePrior+ currentThread->CPU_usage/2;
+        //currentThread->CPU_usage /= 2;
+         //currentThread->burst_prior[1]  = currentThread->basePrior+ currentThread->CPU_usage/2;
 
-    if (algo >=7 && currentThread->burst_prior[1] < nextThread->burst_prior[1] ){
-        (scheduler->getReadyList())->Append(nextThread);
-        nextThread = currentThread;
-    } else {
-	    scheduler->ThreadIsReadyToRun(this);
-    }
+         if (algo >=7 && currentThread->burst_prior[1] < nextThread->burst_prior[1] ){
+             (scheduler->getReadyList())->Append(nextThread);
+              nextThread = currentThread;
+         } else {
+              scheduler->ThreadIsReadyToRun(this);
+         }
 
-	scheduler->Schedule(nextThread);
+    	//scheduler->ThreadIsReadyToRun(this);
+     	scheduler->Schedule(nextThread);
+    }else {
+    
+     	scheduler->Schedule(currentThread);
     }
     (void) interrupt->SetLevel(oldLevel);
 }
@@ -352,8 +354,16 @@ NachOSThread::PutThreadToSleep ()
 
     status = BLOCKED;
     currentThread->endRunning();
-    while ((nextThread = scheduler->FindNextThreadToRun()) == NULL)
+
+    while ((nextThread = scheduler->FindNextThreadToRun()) == NULL){
+        //printf("inside find");
+        //fflush(stdout);
 	interrupt->Idle();	// no one to run, wait for an interrupt
+
+        //printf("after idle\n");
+
+        //fflush(stdout);
+    }
         
     scheduler->Schedule(nextThread); // returns when we've been signalled
 }
@@ -630,7 +640,7 @@ NachOSThread::endRunning ()
 
         for (int i=1; i< thread_index; i++ ){
         
-            if (threadArray[i] != NULL){
+            if (threadArray[i] != NULL && exitThreadArray[i] == 0){
                 threadArray[i]->CPU_usage /=2 ;
                 threadArray[i]->burst_prior[1] = threadArray[i]->basePrior + threadArray[i]->CPU_usage/2;
             }

@@ -213,8 +213,11 @@ Interrupt::Idle()
     DEBUG('i', "Machine idling; checking for interrupts.\n");
     status = IdleMode;
     if (CheckIfDue(TRUE)) {		// check for any pending interrupts
+
     	while (CheckIfDue(FALSE))	// check for any other pending 
 	    ;				// interrupts
+
+
         yieldOnReturn = FALSE;		// since there's nothing in the
 					// ready queue, the yield is automatic
         status = SystemMode;
@@ -311,8 +314,10 @@ Interrupt::CheckIfDue(bool advanceClock)
     if (advanceClock && when > stats->totalTicks) {	// advance the clock
 	stats->idleTicks += (when - stats->totalTicks);
 	stats->totalTicks = when;
+
     } else if (when > stats->totalTicks) {	// not time yet, put it back
 	pending->SortedInsert(toOccur, when);
+
 	return FALSE;
     }
 
@@ -333,9 +338,13 @@ Interrupt::CheckIfDue(bool advanceClock)
     status = SystemMode;			// whatever we were doing,
 						// we are now going to be
 						// running in the kernel
+
     (*(toOccur->handler))(toOccur->arg);	// call the interrupt handler
+
     status = old;				// restore the machine status
     inHandler = FALSE;
+
+
     delete toOccur;
     return TRUE;
 }

@@ -72,16 +72,15 @@ NachOSThread *
 NachOSscheduler::FindNextThreadToRun ()
 {
     ListElement *firstElem = readyThreadList->getFirst();
-    if (firstElem == NULL)
+    if (firstElem == NULL){
         return NULL;
+    }
 
     ListElement *minElem = NULL;
     ListElement *iterElem = firstElem;
     ListElement *nextElem;
     //ListElement *prevElem;
 
-    //printf("Reached here 1\n");
-    //fflush(stdout);
     if (algo == 2 || algo >=7) {
 
         int burst_prior_ind;
