@@ -62,8 +62,9 @@ extern void Print(char *file), PerformanceTest(void);
 extern void StartUserProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
 extern void ForkStartFunction(int );
-int algo;
+int algo = 1;
 int toEndRun = true;
+int TimerTicks = 100;
 
 //void ForkStartFunction(int dummy){
     //currentThread->Startup();
@@ -128,6 +129,16 @@ main(int argc, char **argv)
                std::getline(infile, line);
                std::istringstream iss1(line);
                iss1 >> algo;
+
+               if (algo <=2 )
+                   TimerTicks = 100;
+               else if (algo <=5)
+                   TimerTicks = (algo-2)*(124/4);
+               else if (algo <=9)
+                   TimerTicks = (algo-6)*(124/4);
+               else //#TODO - add for algo 6 and 10
+                   TimerTicks = 100;
+
 
                while(std::getline(infile ,line)){  
 

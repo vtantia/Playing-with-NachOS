@@ -36,6 +36,7 @@ extern bool initializedConsoleSemaphores;       // Used to initialize the semaph
 extern bool exitThreadArray[];          // Marks exited threads
 extern int algo; // Stores the algorithm type
 extern int toEndRun; // Stores whether hall should call endRunning function
+extern int TimerTicks;
 
 class TimeSortedWaitQueue {             // Needed to implement SYScall_Sleep
 private:

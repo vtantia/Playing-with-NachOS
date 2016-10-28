@@ -83,7 +83,7 @@ class NachOSThread {
     int machineState[MachineStateSize];  // all registers except for stackTop
 
   public:
-    NachOSThread(char* debugName);		// initialize a Thread 
+    NachOSThread(char* debugName);// : predBurst(burst_prior[0]), priority(burst_prior[1]);		// initialize a Thread 
     ~NachOSThread(); 				// deallocate a Thread
 					// NOTE -- thread being deleted
 					// must not be running when delete 
@@ -143,6 +143,8 @@ class NachOSThread {
     int waitTime;
     int startRun;
     int startWait;
+    int prevBurst;
+    int burst_prior[2];
 
   private:
     // some of the private data for this class is listed above

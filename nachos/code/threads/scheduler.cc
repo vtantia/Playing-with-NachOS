@@ -71,7 +71,61 @@ NachOSscheduler::ThreadIsReadyToRun (NachOSThread *thread)
 NachOSThread *
 NachOSscheduler::FindNextThreadToRun ()
 {
-    return (NachOSThread *)readyThreadList->Remove();
+    ListElement *firstElem = readyThreadList->getFirst();
+    if (firstElem == NULL)
+        return NULL;
+
+    ListElement *minElem = NULL;
+    ListElement *iterElem = firstElem;
+    ListElement *nextElem;
+    //ListElement *prevElem;
+
+    //printf("Reached here 1\n");
+    //fflush(stdout);
+    if (algo == 2 || algo >=7) {
+
+        int burst_prior_ind;
+        if (algo == 2)
+            burst_prior_ind = 0;
+        else
+            burst_prior_ind = 1;
+
+        int minValue = ((NachOSThread *)firstElem->item)->burst_prior[burst_prior_ind];
+        //printf("Min Value: %d\n", minValue);
+
+        while((nextElem=iterElem->next) != NULL) {
+            if (((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind] < minValue)
+            {
+                minValue = ((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind];
+                printf("New Min Value: %d\n", minValue);
+                minElem = iterElem;
+            }
+            iterElem = iterElem->next;
+        }
+    }
+    //printf("Reached here 2\n");
+    //fflush(stdout);
+    //int cnt = 0;
+    //iterElem = firstElem;
+    //if (iterElem != NULL)
+    //while(iterElem->next != NULL) {
+        //iterElem = iterElem->next;
+        //cnt++;
+    //}
+    //printf("Count before is %d\n", cnt);
+    //fflush(stdout);
+    NachOSThread *toReturn = (NachOSThread *)readyThreadList->RemoveElement(minElem);
+    //firstElem = readyThreadList->getFirst();
+    //cnt = 0;
+    //iterElem = firstElem;
+    //if (iterElem != NULL)
+    //while(iterElem->next != NULL) {
+        //iterElem = iterElem->next;
+        //cnt++;
+    //}
+    //printf("Count after is %d\n", cnt);
+    //fflush(stdout);
+    return toReturn;
 }
 
 //----------------------------------------------------------------------

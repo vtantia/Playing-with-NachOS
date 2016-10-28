@@ -77,8 +77,9 @@ TimerInterruptHandler(int dummy)
            delete ptr;
         }
         //printf("[%d] Timer interrupt.\n", stats->totalTicks);
-        if (algo > 2)
+        if (algo > 2 && (stats->totalTicks - currentThread->startRun) >= TimerTicks) {
             interrupt->YieldOnReturn();
+        }
     }
 }
 
