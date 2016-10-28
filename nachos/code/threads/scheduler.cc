@@ -91,7 +91,7 @@ NachOSscheduler::FindNextThreadToRun ()
             burst_prior_ind = 1;
 
         int minValue = ((NachOSThread *)firstElem->item)->burst_prior[burst_prior_ind];
-        printf("Min Value: %d\n", minValue);
+        //printf("Min Value: %d\n", minValue);
 
         while((nextElem=iterElem->next) != NULL) {
             if (((NachOSThread *)nextElem->item)->burst_prior[burst_prior_ind] < minValue)
