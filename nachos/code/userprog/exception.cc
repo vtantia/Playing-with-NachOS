@@ -116,6 +116,7 @@ ExceptionHandler(ExceptionType which)
           if (!exitThreadArray[i]) break;
        }
        currentThread->Exit(i==thread_index, exitcode);
+
     }
     else if ((which == SyscallException) && (type == SYScall_Exec)) {
        // Copy the executable name into kernel space

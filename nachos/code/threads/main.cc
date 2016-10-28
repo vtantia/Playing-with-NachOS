@@ -163,9 +163,11 @@ main(int argc, char **argv)
                    space = new ProcessAddrSpace(newListExec);
                    space->InitUserCPURegisters();
                    newListThread->space = space;
-                   //newListThread->burst_prior[1]= prior;
-                   printf("Prior is : %d", prior);
-                   newListThread->basePrior = prior;
+                   
+                   //printf("Prior is : %d", prior);
+                   newListThread->basePrior = prior + 50;
+
+                   newListThread->burst_prior[1]= newListThread->basePrior;
                    
                    delete newListExec;
 

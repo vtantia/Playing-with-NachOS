@@ -245,12 +245,17 @@ List::RemoveElement(ListElement *prev)
     ListElement *element;
     if (prev == NULL) {
         element = first;
+
+        if(first == last) last= NULL;
         first = element->next;
+
     }
     else {
         element = prev->next;
         ASSERT(prev->next != NULL);
         prev->next = prev->next->next;
+        if (prev->next == NULL)
+            last = prev;
     }
 
     void *thing;

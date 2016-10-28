@@ -69,6 +69,7 @@ NachOSThread::NachOSThread(char* threadName)
     burst_prior[0] = burst_prior[1] = 0;
     CPU_usage = 0;
     basePrior = 0;
+    burstLength = 0;
 }
 
 //----------------------------------------------------------------------
@@ -267,6 +268,8 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
     }
     printf("in exit222!!!\n");
     scheduler->Schedule(nextThread); // returns when we've been signalled
+    printf("here2.34!\n");
+
 }
 
 //----------------------------------------------------------------------
@@ -298,9 +301,21 @@ NachOSThread::YieldCPU ()
     DEBUG('t', "Yielding thread \"%s\" with pid %d\n", getName(), pid);
     
     nextThread = scheduler->FindNextThreadToRun();
+
     if (nextThread != NULL) {
-	scheduler->ThreadIsReadyToRun(this);
-        currentThread->endRunning();
+
+    currentThread->endRunning();
+
+    //currentThread->CPU_usage /= 2;
+    //currentThread->burst_prior[1]  = currentThread->basePrior+ currentThread->CPU_usage/2;
+
+    if (algo >=7 && currentThread->burst_prior[1] < nextThread->burst_prior[1] ){
+        (scheduler->getReadyList())->Append(nextThread);
+        nextThread = currentThread;
+    } else {
+	    scheduler->ThreadIsReadyToRun(this);
+    }
+
 	scheduler->Schedule(nextThread);
     }
     (void) interrupt->SetLevel(oldLevel);
@@ -505,10 +520,12 @@ NachOSThread::ResetReturnValue ()
 void
 NachOSThread::Schedule()
 {
+
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
     scheduler->ThreadIsReadyToRun(this);        // ThreadIsReadyToRun assumes that interrupts
                                         // are disabled!
     (void) interrupt->SetLevel(oldLevel);
+
 }
 
 //----------------------------------------------------------------------
@@ -595,7 +612,7 @@ NachOSThread::GetInstructionCount (void)
 void
 NachOSThread::endRunning ()
 {
-    int burstLength = stats->totalTicks - startRun;
+    burstLength = stats->totalTicks - startRun;
 
     stats->maxBurst = (stats->maxBurst > burstLength) ? stats->maxBurst: burstLength; //std::max(stats->maxBurst, burstLength);
     stats->minBurst = (stats->minBurst < burstLength) ? stats->minBurst: burstLength; //std::min(stats->minBurst, burstLength);
@@ -603,13 +620,26 @@ NachOSThread::endRunning ()
     burst_prior[0] = (burstLength + burst_prior[0])/2;
     //prevBurst = burstLength;
 
-    CPU_usage += burstLength;
+    //CPU_usage += burstLength;
 
     if (burstLength > 0)
     {
+        CPU_usage += burstLength;
         stats->numBursts ++;
         runTime += burstLength;
+
+        for (int i=1; i< thread_index; i++ ){
+        
+            if (threadArray[i] != NULL){
+                threadArray[i]->CPU_usage /=2 ;
+                threadArray[i]->burst_prior[1] = threadArray[i]->basePrior + threadArray[i]->CPU_usage/2;
+            }
+    
+         }
+
     }
+
+
 }
 
 void

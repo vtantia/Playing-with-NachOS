@@ -93,15 +93,23 @@ NachOSscheduler::FindNextThreadToRun ()
         int minValue = ((NachOSThread *)firstElem->item)->burst_prior[burst_prior_ind];
         //printf("Min Value: %d\n", minValue);
 
-        //if (algo >= 7){
+        //if (algo >= 7 && currentThread->burstLength != 0 ){
+
+            //TimeSortedWaitQueue* iterSleep;
+            //iterSleep = sleepQueueHead;
+            //while (iterSleep != NULL){
+                
+                //(iterSleep->GetThread())->CPU_usage /=2;
+                //(iterSleep->GetThread())->burst_prior[1] = (iterSleep->GetThread())->basePrior +  (iterSleep->GetThread())->CPU_usage/2;
+                //iterSleep = iterSleep->GetNext();
+            //}
+
             //while(iterElem != NULL) {
-         //   printf("inside 77777\n");
-         //       ((NachOSThread*)iterElem->item)->CPU_usage /=2;
-         //       ((NachOSThread*)iterElem->item)->burst_prior[1] =   ((NachOSThread*)iterElem->item)->basePrior +  ((NachOSThread*)iterElem->item)->CPU_usage/2;
-         //      printf("burst_prior : %d\n",   ((NachOSThread*)iterElem->item)->burst_prior[1] ) ;
-         //       iterElem = iterElem->next;
-         //    }
-         //   iterElem  =  firstElem;
+                //((NachOSThread*)iterElem->item)->CPU_usage /=2;
+                //((NachOSThread*)iterElem->item)->burst_prior[1] = ((NachOSThread*)iterElem->item)->basePrior +  ((NachOSThread*)iterElem->item)->CPU_usage/2;
+                //iterElem = iterElem->next;
+             //}
+            //iterElem  =  firstElem;
 
         //}
 
@@ -201,9 +209,11 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
     // a bit to figure out what happens after this, both from the point
     // of view of the thread and from the perspective of the "outside world".
     //
+    //printf("here1.5!\n");
+
     _SWITCH(oldThread, nextThread);
     
-    //printf("here22\n");
+    //printf("here2.5\n");
     DEBUG('t', "Now in thread \"%s\" with pid %d\n", currentThread->getName(), currentThread->GetPID());
 
     // If the old thread gave up the processor because it was finishing,
@@ -215,12 +225,14 @@ NachOSscheduler::Schedule (NachOSThread *nextThread)
 	threadToBeDestroyed = NULL;
     }
 
+
 #ifdef USER_PROGRAM
     if (currentThread->space != NULL) {		// if there is an address space
         currentThread->RestoreUserState();     // to restore, do it.
 	currentThread->space->RestoreStateOnSwitch();
     }
 #endif
+
 }
 
 //----------------------------------------------------------------------
