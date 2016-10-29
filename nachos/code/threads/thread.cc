@@ -627,13 +627,17 @@ NachOSThread::endRunning ()
     stats->maxBurst = (stats->maxBurst > burstLength) ? stats->maxBurst: burstLength; //std::max(stats->maxBurst, burstLength);
     stats->minBurst = (stats->minBurst < burstLength) ? stats->minBurst: burstLength; //std::min(stats->minBurst, burstLength);
 
-    burst_prior[0] = (burstLength + burst_prior[0])/2;
     //prevBurst = burstLength;
 
     //CPU_usage += burstLength;
 
     if (burstLength > 0)
     {
+        int diff = burstLength - burst_prior[0];
+        if (diff < 0)
+            diff = -diff;
+        stats->diff_predicted += diff;
+        burst_prior[0] = (burstLength + burst_prior[0])/2;
         CPU_usage += burstLength;
         stats->numBursts ++;
         runTime += burstLength;

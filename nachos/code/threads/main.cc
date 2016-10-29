@@ -134,6 +134,8 @@ main(int argc, char **argv)
                    TimerTicks = 100;
                else if (algo <=5)
                    TimerTicks = (algo-2)*(124/4);
+               else if (algo == 6)
+                   TimerTicks = 100;
                else if (algo <=9)
                    TimerTicks = (algo-6)*(124/4);
                else //#TODO - add for algo 6 and 10

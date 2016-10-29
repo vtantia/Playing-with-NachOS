@@ -26,6 +26,7 @@ Statistics::Statistics()
     maxBurst = numBursts = maxCompletion = avgCompletion = variance = 0;
     minBurst = minCompletion = 1000000000;
     threadCount = 0;
+    diff_predicted = 0;
     for(int i=0; i<MAX_THREAD_COUNT; i++) {
         completionTimes[i] = 0;
     }
@@ -54,6 +55,7 @@ Statistics::Print()
     printf("Burst lengths: max %d, min %d, average %lf, count\(non-zero\) %d\n", maxBurst, minBurst, (double)totalRunTime / numBursts, numBursts);
     printf("Average waiting time: %lf\n", (double)totalWaitTime / (threadCount-1));
     printf("Thread completion times: max %d, min %d, average %lf, variance %lf\n", maxCompletion, minCompletion, avgCompletion, variance);
+    printf("Difference between predicted and actual bursts: %d, ratio of diff and sum of burst lengths %lf\n", diff_predicted, ((double)diff_predicted) / totalRunTime);
 }
 
 void

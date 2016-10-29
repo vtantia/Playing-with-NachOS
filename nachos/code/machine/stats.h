@@ -55,6 +55,7 @@ class Statistics {
     double variance;
 
     int threadCount;
+    int diff_predicted;
 
     Statistics(); 		// initialize everything to zero
 
