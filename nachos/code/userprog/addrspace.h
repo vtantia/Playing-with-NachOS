@@ -37,6 +37,9 @@ class ProcessAddrSpace {
     unsigned GetNumPages();
 
     TranslationEntry* GetPageTable();
+    int allocateShared(int sizeShared);
+    unsigned int sharedStart;           // Starting Number of shared pages in
+                                        // the virtual address space
 
   private:
     TranslationEntry *NachOSpageTable;	// Assume linear page table translation
