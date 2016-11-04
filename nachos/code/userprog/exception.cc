@@ -96,6 +96,7 @@ ExceptionHandler(ExceptionType which)
     char buffer[1024];		// Used in SYScall_Exec
     int waitpid;		// Used in SYScall_Join
     int whichChild;		// Used in SYScall_Join
+    int sizeShared;             // User in SYScall_ShmAllocate
     NachOSThread *child;		// Used by SYScall_Fork
     unsigned sleeptime;		// Used by SYScall_Sleep
 
@@ -296,6 +297,15 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == SYScall_NumInstr)) {
        machine->WriteRegister(2, currentThread->GetInstructionCount());
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else if ((which == SyscallException) && (type == SYScall_ShmAllocate)) {
+       sizeShared = machine->ReadRegister(4);
+       vaddr = currentThread->space->allocateShared(sizeShared);
+       machine->WriteRegister(2, vaddr);		// Return value for parent
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
