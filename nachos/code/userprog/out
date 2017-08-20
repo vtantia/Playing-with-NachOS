@@ -1,0 +1,1 @@
+g++ -m32 -Wall -Wshadow -I../bin -I../filesys -I../userprog -I../threads -I../machine -DUSER_PROGRAM -DFILESYS_NEEDED -DFILESYS_STUB -DHOST_i386 -DCHANGED -c ../machine/mipssim.cc
